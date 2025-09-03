@@ -2,11 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-// Tambahkan baris ini
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Project extends Model
 {
@@ -22,12 +21,14 @@ class Project extends Model
         'title',
         'description',
         'status',
+        'jurusan',
         'github_url',
         'demo_url',
-        'figma_url',
+        'embed_url',
+        'source_url',
+        'rejection_reason',
     ];
 
-    // Tambahkan fungsi ini
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -38,3 +39,4 @@ class Project extends Model
         return $this->hasMany(ProjectMedia::class);
     }
 }
+

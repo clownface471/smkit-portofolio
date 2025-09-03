@@ -19,7 +19,7 @@
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
+        Route::get('/projects/{project}/preview', [ProjectController::class, 'preview'])->name('projects.preview');
         Route::resource('projects', ProjectController::class);
         Route::patch('/projects/{project}/submit', [ProjectController::class, 'submitForReview'])->name('projects.submit');
     });
@@ -27,6 +27,8 @@
     // Rute untuk Guru & Admin
     Route::middleware(['auth', 'role:guru,admin'])->group(function () {
         Route::get('/review', [ReviewController::class, 'index'])->name('review.index');
+        // Rute BARU untuk melihat detail proyek
+        Route::get('/review/{project}', [ReviewController::class, 'show'])->name('review.show');
         Route::patch('/review/{project}/approve', [ReviewController::class, 'approve'])->name('review.approve');
         Route::patch('/review/{project}/reject', [ReviewController::class, 'reject'])->name('review.reject');
     });
