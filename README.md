@@ -1,61 +1,170 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Website Portofolio Siswa - SMK-IT As-Syifa Boarding School
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplikasi web ini berfungsi sebagai platform digital untuk menampilkan karya-karya (portofolio) dari siswa SMK-IT As-Syifa. Aplikasi ini memiliki dua sisi: halaman publik untuk galeri karya, dan area internal dengan sistem hak akses (role-based) untuk Siswa, Guru, dan Admin.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 1. Arsitektur & Teknologi
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+-   **Framework:** Laravel 11
+-   **Database:** MySQL
+-   **Frontend:** Blade Templates dengan komponen, Tailwind CSS untuk styling.
+-   **Interactivity:** Alpine.js (untuk modal, form dinamis, dan lightbox).
+-   **Asset Bundling:** Vite.
+-   **Autentikasi:** Laravel Breeze (starter kit), dimodifikasi untuk menonaktifkan registrasi publik.
+-   **Server Lokal (Rekomendasi):** Laragon
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 2. Konsep Kunci & Alur Kerja
 
-## Learning Laravel
+-   **Sistem Peran (Roles):** Aplikasi menggunakan tiga peran utama (`siswa`, `guru`, `admin`) yang disimpan di kolom `role` pada tabel `users`. Hak akses dikontrol menggunakan *middleware* `EnsureUserHasRole`.
+-   **Pemisahan Jurusan:** Siswa dibedakan berdasarkan `jurusan` (`RPL` atau `DKV`). Jurusan ini mengontrol tampilan dan aturan validasi pada form tambah/edit proyek secara dinamis.
+-   **Alur Proyek:** Proyek memiliki `status` yang mengontrol alur kerjanya:
+    1.  `draft`: Dibuat/diedit oleh siswa.
+    2.  `pending_review`: Diajukan ke guru untuk diperiksa.
+    3.  `published`: Disetujui oleh guru dan tampil di halaman publik.
+-   **Penyimpanan File:** Semua file yang diunggah (gambar/video) disimpan di `storage/app/public`. Perintah `php artisan storage:link` **wajib** dijalankan agar file-file ini bisa diakses dari web.
+-   **Registrasi Terkunci:** Pendaftaran akun baru hanya bisa dilakukan oleh admin melalui panel `/admin/users` untuk menjaga keamanan data.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+---
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## 3. Instalasi & Setup Lokal
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Pastikan Anda memiliki Laragon (atau server lokal sejenis), Composer, dan Node.js/NPM yang sudah terpasang.
 
-## Laravel Sponsors
+### 3.1. Clone Repository
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```bash
+git clone [https://github.com/clownface471/smkit-portofolio](https://github.com/clownface471/smkit-portofolio) smk-assyifa-portfolio
+cd smk-assyifa-portfolio
+````
 
-### Premium Partners
+### 3.2. Siapkan Environment File
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Salin file `.env.example`, lalu install dependensi PHP (Composer) dan JavaScript (NPM).
 
-## Contributing
+```bash
+cp .env.example .env
+composer install
+npm install
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 3.3. Konfigurasi `.env`
 
-## Code of Conduct
+Buka file `.env` dan atur koneksi database Anda.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```dotenv
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=assyifa_portfolio
+DB_USERNAME=root
+DB_PASSWORD=
+```
 
-## Security Vulnerabilities
+**Penting:** Pastikan Anda sudah membuat database kosong bernama `assyifa_portfolio` melalui HeidiSQL atau manajer database lainnya.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 3.4. Jalankan Perintah Setup Laravel
 
-## License
+Buat kunci aplikasi, jalankan migrasi untuk membuat semua tabel, dan buat *symbolic link* untuk penyimpanan file.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+php artisan key:generate
+php artisan migrate
+php artisan storage:link
+```
+
+### 3.5. Compile Aset Frontend
+
+Jalankan Vite development server. Biarkan terminal ini tetap berjalan saat Anda mengembangkan.
+
+```bash
+npm run dev
+```
+
+### 3.6. Buat Akun Admin Pertama
+
+Gunakan `tinker` untuk membuat akun admin pertama Anda.
+
+```bash
+php artisan tinker
+```
+
+Di dalam *tinker*, jalankan kode ini:
+
+```php
+\App\Models\User::create([
+    'name' => 'Admin Sekolah',
+    'email' => 'admin@assyifa.sch.id',
+    'password' => bcrypt('password'), // Ganti 'password' dengan password yang aman
+    'role' => 'admin',
+    'email_verified_at' => now(),
+]);
+```
+
+Ketik `exit` untuk keluar dari *tinker*.
+
+### 3.7. Selesai\!
+
+Akses aplikasi melalui URL lokal Anda (misal: `http://smk-assyifa-portfolio.test`). Login dengan akun admin yang baru saja dibuat.
+
+-----
+
+## 4\. Panduan Deployment (Publikasi ke Server)
+
+Langkah-langkah ini untuk mempublikasikan aplikasi ke server *hosting* yang mendukung PHP & MySQL.
+
+### 4.1. Unggah Kode
+
+Gunakan `git` untuk men-clone *repository* Anda ke direktori server (misal: `/var/www/assyifa-portfolio`).
+
+### 4.2. Install Dependensi (Mode Produksi)
+
+```bash
+composer install --optimize-autoloader --no-dev
+npm install
+npm run build
+```
+
+### 4.3. Konfigurasi `.env` Produksi
+
+Salin `cp .env.example .env` dan edit file `.env`. Pastikan Anda mengatur:
+
+  - `APP_ENV=production`
+  - `APP_DEBUG=false`
+  - `APP_URL=https://domain-anda.com`
+  - Detail koneksi database produksi Anda.
+
+### 4.4. Jalankan Perintah Produksi
+
+Perintah ini akan mengoptimalkan aplikasi Anda untuk performa dan keamanan.
+
+```bash
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+php artisan migrate --force
+php artisan storage:link
+```
+
+### 4.5. Konfigurasi Web Server
+
+Arahkan *document root* dari domain Anda ke direktori `/public` di dalam folder proyek. Ini adalah langkah keamanan yang sangat penting.
+
+### 4.6. Atur Hak Akses Folder
+
+Pastikan web server (misalnya `www-data`) memiliki izin untuk menulis ke folder `storage` dan `bootstrap/cache`.
+
+```bash
+sudo chown -R www-data:www-data /var/www/assyifa-portfolio/storage
+sudo chown -R www-data:www-data /var/www/assyifa-portfolio/bootstrap/cache
+```
+
+-----
+
+## 5\. Potensi Pengembangan Selanjutnya
+
+  - **Form Multi-Step:** Mengubah form tambah/edit proyek menjadi beberapa langkah.
+  - **Fitur Filter Canggih:** Mengaktifkan filter di halaman galeri publik.
+  - **Notifikasi Email:** Mengirim notifikasi kepada siswa saat proyek disetujui/ditolak.
+  - **Halaman Profil Publik Siswa:** Membangun halaman khusus untuk setiap siswa.
+
