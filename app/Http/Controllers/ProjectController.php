@@ -4,24 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Models\Project;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request; // Pastikan ini ada
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage; // Tambahkan ini
 use Illuminate\View\View;
 
 class ProjectController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // ... fungsi index(), create() tidak berubah ...
     public function index(Request $request): View
     {
-        // Hapus dd() dari sini jika masih ada
         $projects = $request->user()->projects()->latest()->get();
         return view('projects.index', ['projects' => $projects]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create(): View
     {
         return view('projects.create');
@@ -32,70 +27,74 @@ class ProjectController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // 1. Validasi semua input, termasuk file gambar
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'github_url' => 'nullable|url',
             'demo_url' => 'nullable|url',
+            'images' => 'nullable|array', // Pastikan 'images' adalah array
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Validasi setiap file
         ]);
-        $request->user()->projects()->create($validated);
+
+        // 2. Buat proyek dengan data teks terlebih dahulu
+        $project = $request->user()->projects()->create($validated);
+
+        // 3. Jika ada file gambar yang diunggah, proses dan simpan
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                // Simpan file ke storage/app/public/project-images
+                // dan dapatkan path-nya
+                $path = $image->store('project-images', 'public');
+
+                // Buat record baru di tabel project_media
+                $project->media()->create([
+                    'file_path' => $path,
+                    'file_type' => 'image',
+                ]);
+            }
+        }
+
         return redirect(route('projects.index'))->with('success', 'Proyek berhasil ditambahkan!');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Project $project)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
+    // ... sisa controller (edit, update, destroy, dll) akan kita perbarui nanti ...
     public function edit(Request $request, Project $project): View
     {
         if ($project->user_id !== $request->user()->id) {
             abort(403);
         }
-
-        return view('projects.edit', [
-            'project' => $project,
-        ]);
+        return view('projects.edit', ['project' => $project]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Project $project): RedirectResponse
     {
+        // Logika update akan kita tambahkan nanti
         if ($project->user_id !== $request->user()->id) {
             abort(403);
         }
-
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'github_url' => 'nullable|url',
             'demo_url' => 'nullable|url',
         ]);
-
         $project->update($validated);
-
         return redirect(route('projects.index'))->with('success', 'Proyek berhasil diperbarui!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Request $request, Project $project): RedirectResponse
     {
         if ($project->user_id !== $request->user()->id) {
             abort(403);
         }
 
+        // Hapus juga file dari storage saat proyek dihapus
+        foreach($project->media as $media) {
+            Storage::disk('public')->delete($media->file_path);
+        }
+        
         $project->delete();
-
         return redirect(route('projects.index'))->with('success', 'Proyek berhasil dihapus!');
     }
 
@@ -104,10 +103,9 @@ class ProjectController extends Controller
         if ($project->user_id !== $request->user()->id) {
             abort(403);
         }
-
         $project->status = 'pending_review';
         $project->save();
-
         return redirect(route('projects.index'))->with('success', 'Proyek berhasil diajukan untuk direview!');
     }
 }
+

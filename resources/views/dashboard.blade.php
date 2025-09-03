@@ -9,21 +9,62 @@
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6 text-gray-900 dark:text-gray-100">
-                        {{ __("You're logged in!") }}
+                        Selamat datang kembali, {{ Auth::user()->name }}! Anda login sebagai {{ ucfirst(Auth::user()->role) }}.
                     </div>
                 </div>
 
-                <!-- Tambahkan bagian ini -->
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg mt-6">
-                    <div class="p-6">
-                        <a href="{{ route('projects.index') }}" class="font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-200">
-                            Kelola Proyek Saya &rarr;
-                        </a>
-                    </div>
-                </div>
-                <!-- Akhir bagian tambahan -->
+                <!-- Konten Dinamis Berdasarkan Peran -->
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    @if(Auth::user()->role === 'siswa')
+                        <!-- === KONTEN UNTUK SISWA === -->
+                        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                            <div class="p-6">
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Proyek Anda</h3>
+                                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Lihat, tambah, atau edit portofolio proyek yang sudah Anda kerjakan.</p>
+                                <a href="{{ route('projects.index') }}" class="mt-4 inline-block font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-200">
+                                    Kelola Proyek Saya &rarr;
+                                </a>
+                            </div>
+                        </div>
 
+                    @elseif(Auth::user()->role === 'guru')
+                        <!-- === KONTEN UNTUK GURU === -->
+                        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                            <div class="p-6">
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Review Proyek</h3>
+                                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Lihat dan berikan persetujuan untuk proyek yang diajukan oleh siswa.</p>
+                                <a href="{{ route('review.index') }}" class="mt-4 inline-block font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-200">
+                                    Buka Panel Review &rarr;
+                                </a>
+                            </div>
+                        </div>
+
+                    @elseif(Auth::user()->role === 'admin')
+                        <!-- === KONTEN UNTUK ADMIN === -->
+                        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                            <div class="p-6">
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Review Proyek</h3>
+                                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Lihat dan berikan persetujuan untuk proyek yang diajukan oleh siswa.</p>
+                                <a href="{{ route('review.index') }}" class="mt-4 inline-block font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-200">
+                                    Buka Panel Review &rarr;
+                                </a>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                            <div class="p-6">
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Manajemen Pengguna</h3>
+                                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Tambah, edit, atau hapus akun untuk siswa dan guru.</p>
+                                <a href="{{ route('admin.users.index') }}" class="mt-4 inline-block font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-200">
+                                    Kelola Pengguna &rarr;
+                                </a>
+                            </div>
+                        </div>
+                    @endif
+
+                </div>
             </div>
         </div>
     </x-app-layout>
     
+
