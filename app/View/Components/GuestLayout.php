@@ -1,17 +1,33 @@
 <?php
 
-namespace App\View\Components;
+    namespace App\View\Components;
 
-use Illuminate\View\Component;
-use Illuminate\View\View;
+    use Illuminate\View\Component;
+    use Illuminate\View\View;
 
-class GuestLayout extends Component
-{
-    /**
-     * Get the view / contents that represents the component.
-     */
-    public function render(): View
+    class GuestLayout extends Component
     {
-        return view('layouts.guest');
+        /**
+         * Menentukan apakah layout harus lebar penuh.
+         *
+         * @var bool
+         */
+        public $fullWidth;
+
+        /**
+         * Buat instance komponen baru.
+         */
+        public function __construct($fullWidth = false)
+        {
+            $this->fullWidth = $fullWidth;
+        }
+
+        /**
+         * Dapatkan view / konten yang merepresentasikan komponen.
+         */
+        public function render(): View
+        {
+            return view('layouts.guest');
+        }
     }
-}
+    
