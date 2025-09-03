@@ -46,13 +46,12 @@ class PublicController extends Controller
      */
     public function show(Project $project): View
     {
-        // Pastikan hanya proyek yang sudah 'published' yang bisa dilihat
         if ($project->status !== 'published') {
             abort(404);
         }
 
-        // Kita akan gunakan kembali view preview untuk efisiensi
-        return view('projects.preview', [
+        // Ganti view yang digunakan di sini
+        return view('portofolio.show', [
             'project' => $project->load('user', 'media')
         ]);
     }

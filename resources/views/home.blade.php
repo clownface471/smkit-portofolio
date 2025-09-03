@@ -31,10 +31,10 @@
                     <p class="mt-2 text-lg leading-8 text-gray-600 dark:text-gray-400">Beberapa karya terbaik yang telah diseleksi dan dipublikasikan.</p>
                 </div>
                 <div class="mx-auto mt-16 grid max-w-2xl auto-rows-fr grid-cols-1 gap-8 sm:mt-20 lg:mx-0 lg:max-w-none lg:grid-cols-3">
-                    @forelse ($featuredProjects as $project)
-                        <article class="relative isolate flex flex-col justify-end overflow-hidden rounded-2xl bg-gray-900 px-8 pb-8 pt-80 sm:pt-48 lg:pt-80">
-                            <img src="{{ $project->media->firstWhere('file_type', 'image') ? asset('storage/' . $project->media->firstWhere('file_type', 'image')->file_path) : 'https://placehold.co/600x400/004D40/FFFFFF?text=Project' }}" alt="Gambar Proyek" class="absolute inset-0 -z-10 h-full w-full object-cover">
-                            <div class="absolute inset-0 -z-10 bg-gradient-to-t from-gray-900 via-gray-900/40"></div>
+                   @forelse ($featuredProjects as $project)
+                        <article class="relative isolate flex flex-col justify-end overflow-hidden rounded-2xl bg-gray-900 px-8 pb-8 pt-80 sm:pt-48 lg:pt-80 group">
+                            <img src="{{ $project->media->firstWhere('file_type', 'image') ? asset('storage/' . $project->media->firstWhere('file_type', 'image')->file_path) : 'https://placehold.co/600x400/004D40/FFFFFF?text=Project' }}" alt="Gambar Proyek" class="absolute inset-0 -z-10 h-full w-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-105">
+                            <div class="absolute inset-0 -z-10 bg-gradient-to-t from-gray-900/80 via-gray-900/40"></div>
                             <div class="absolute inset-0 -z-10 rounded-2xl ring-1 ring-inset ring-gray-900/10"></div>
 
                             <h3 class="mt-3 text-lg font-semibold leading-6 text-white">
@@ -44,14 +44,14 @@
                                 </a>
                             </h3>
                             <div class="flex flex-wrap items-center gap-y-1 overflow-hidden text-sm leading-6 text-gray-300">
-                               <span class="mr-2">{{ $project->user->name }}</span>
-                               <div class="flex items-center gap-x-2">
-                                   <span class="font-medium bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-md px-1.5 py-0.5">{{ $project->user->jurusan }}</span>
-                               </div>
+                            <span class="mr-2">{{ $project->user->name }}</span>
+                            <div class="flex items-center gap-x-2">
+                                <span class="font-medium bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-md px-1.5 py-0.5">{{ $project->user->jurusan }}</span>
+                            </div>
                             </div>
                         </article>
                     @empty
-                        <p class="text-center col-span-3 text-gray-500 dark:text-gray-400">Belum ada proyek yang dipublikasikan.</p>
+                        <p class="text-center col-span-full text-gray-500 dark:text-gray-400">Belum ada proyek yang dipublikasikan.</p>
                     @endforelse
                 </div>
             </div>

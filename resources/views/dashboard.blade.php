@@ -60,6 +60,15 @@
                                 </a>
                             </div>
                         </div>
+                        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                            <div class="p-6">
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Manajemen Proyek</h3>
+                                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Lihat semua proyek dan tarik kembali (unpublish) karya jika diperlukan.</p>
+                                <a href="{{ route('admin.projects.index') }}" class="mt-4 inline-block font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-200">
+                                    Buka Moderasi Proyek &rarr;
+                                </a>
+                            </div>
+                        </div>
                     @endif
 
                 </div>
