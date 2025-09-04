@@ -1,193 +1,164 @@
-# Website Portofolio Siswa - SMK-IT As-Syifa Boarding School
+# Sistem Portofolio Siswa - SMK-IT As-Syifa Boarding School
 
-Aplikasi web ini berfungsi sebagai platform digital untuk menampilkan karya-karya (portofolio) dari siswa SMK-IT As-Syifa. Aplikasi ini memiliki dua sisi: halaman publik untuk galeri karya, dan area internal dengan sistem hak akses (role-based) untuk Siswa, Guru, dan Admin.
+Sistem Portofolio Siswa adalah sebuah platform web yang dirancang khusus untuk siswa SMK-IT As-Syifa Boarding School. Aplikasi ini memungkinkan siswa dari jurusan RPL (Rekayasa Perangkat Lunak) dan DKV (Desain Komunikasi Visual) untuk mengunggah, mengelola, dan memamerkan karya-karya terbaik mereka.
 
----
-
-## 1. Arsitektur & Teknologi
-
--   **Framework:** Laravel 11
--   **Database:** MySQL
--   **Frontend:** Blade Templates dengan komponen, Tailwind CSS untuk styling.
--   **Interactivity:** Alpine.js (untuk modal, form dinamis, dan lightbox).
--   **Asset Bundling:** Vite.
--   **Autentikasi:** Laravel Breeze (starter kit), dimodifikasi untuk menonaktifkan registrasi publik.
--   **Server Lokal (Rekomendasi):** Laragon
-
-## 2. Konsep Kunci & Alur Kerja
-
--   **Sistem Peran (Roles):** Aplikasi menggunakan tiga peran utama (`siswa`, `guru`, `admin`) yang disimpan di kolom `role` pada tabel `users`. Hak akses dikontrol menggunakan *middleware* `EnsureUserHasRole`.
--   **Pemisahan Jurusan:** Siswa dibedakan berdasarkan `jurusan` (`RPL` atau `DKV`). Jurusan ini mengontrol tampilan dan aturan validasi pada form tambah/edit proyek secara dinamis.
--   **Alur Proyek:** Proyek memiliki `status` yang mengontrol alur kerjanya:
-    1.  `draft`: Dibuat/diedit oleh siswa.
-    2.  `pending_review`: Diajukan ke guru untuk diperiksa.
-    3.  `published`: Disetujui oleh guru dan tampil di halaman publik.
--   **Penyimpanan File:** Semua file yang diunggah (gambar/video) disimpan di `storage/app/public`. Perintah `php artisan storage:link` **wajib** dijalankan agar file-file ini bisa diakses dari web.
--   **Registrasi Terkunci:** Pendaftaran akun baru hanya bisa dilakukan oleh admin melalui panel `/admin/users` untuk menjaga keamanan data.
+Platform ini juga dilengkapi dengan sistem review oleh guru, di mana setiap karya akan melalui proses kurasi sebelum dipublikasikan di galeri umum, memastikan kualitas portofolio yang ditampilkan.
 
 ---
 
-## 3. Instalasi & Setup Lokal
+## Fitur Utama
 
-Pastikan Anda memiliki Laragon (atau server lokal sejenis), Composer, dan Node.js/NPM yang sudah terpasang.
+### 👤 Untuk Siswa
+- **Dashboard Pribadi:** Halaman utama untuk melihat dan mengelola semua proyek.
+- **Manajemen Proyek (CRUD):** Membuat, membaca, memperbarui, dan menghapus draf proyek.
+- **Upload Media:** Mendukung unggahan multi-gambar, video (upload file & embed YouTube/Vimeo), dan tautan relevan (GitHub, demo live, Figma, file mentah).
+- **Sistem Kategori & Tag:** Memberi label pada setiap proyek dengan teknologi atau kategori yang relevan untuk mempermudah pencarian.
+- **Sistem Review:** Mengajukan proyek yang sudah selesai untuk direview oleh guru.
+- **Fitur Komentar/Feedback:** Berdiskusi dan menerima masukan dari guru langsung di halaman edit proyek.
+- **Pratinjau Proyek:** Melihat tampilan proyek persis seperti yang akan dilihat oleh publik sebelum diajukan.
 
-### 3.1. Clone Repository
+### 🧑‍🏫 Untuk Guru & Admin
+- **Dashboard Review:** Halaman khusus untuk melihat semua proyek yang menunggu persetujuan.
+- **Alur Persetujuan:** Menyetujui (publish) atau menolak (reject) proyek siswa dengan memberikan alasan.
+- **Fitur Komentar Internal:** Memberikan feedback yang konstruktif kepada siswa selama proses review.
+- **Manajemen Pengguna (Admin):** Admin dapat membuat, mengedit, dan menghapus akun untuk semua peran (admin, guru, siswa).
 
-```bash
-git clone https://github.com/clownface471/smkit-portofolio smk-assyifa-portfolio
-cd smk-assyifa-portfolio
-````
+### 🌐 Untuk Publik
+- **Galeri Portofolio:** Menampilkan semua proyek yang telah disetujui dalam tata letak yang menarik.
+- **Pencarian & Filter Canggih:**
+    - Pencarian berdasarkan judul proyek atau nama siswa.
+    - Filter berdasarkan jurusan (RPL/DKV).
+    - Filter multi-tag ala Mangadex (include/exclude) yang dikelompokkan berdasarkan kategori dan bisa disembunyikan.
+- **Halaman Detail Proyek:** Tampilan modern dua kolom dengan informasi proyek yang *sticky* dan galeri media yang imersif (termasuk lightbox).
+- **Halaman Profil Publik Siswa:** Setiap siswa memiliki halaman profil sendiri yang menampilkan semua karya yang telah mereka publikasikan.
 
-### 3.2. Siapkan Environment File
+---
 
-Salin file `.env.example`, lalu install dependensi PHP (Composer) dan JavaScript (NPM).
+## Teknologi yang Digunakan
 
-```bash
-cp .env.example .env
-composer install
-npm install
-```
+- **Backend:** Laravel 11
+- **Frontend:** Blade, Tailwind CSS, Alpine.js
+- **Database:** MySQL
+- **Development Environment:** Laragon
+- **Build Tool:** Vite
 
-### 3.3. Konfigurasi `.env`
+---
 
-Buka file `.env` dan atur koneksi database Anda.
+## Panduan Instalasi Lokal
 
-```dotenv
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=assyifa_portfolio
-DB_USERNAME=root
-DB_PASSWORD=
-```
+Berikut adalah langkah-langkah untuk menjalankan proyek ini di lingkungan pengembangan lokal.
 
-**Penting:** Pastikan Anda sudah membuat database kosong bernama `assyifa_portfolio` melalui HeidiSQL atau manajer database lainnya.
+### Prasyarat
+- PHP 8.2+
+- Composer
+- Node.js & NPM
+- Database Server (misalnya, MySQL di dalam Laragon)
 
-### 3.4. Jalankan Perintah Setup Laravel
+### Langkah-langkah Instalasi
+1.  **Clone repositori ini.**
+2.  **Masuk ke direktori proyek.**
+3.  **Install dependensi PHP & JavaScript:**
+    ```bash
+    composer install
+    npm install
+    ```
+4.  **Salin file environment & generate kunci:**
+    ```bash
+    cp .env.example .env
+    php artisan key:generate
+    ```
+5.  **Konfigurasi Database di `.env`:**
+    - Buat database baru (misalnya, `smkit_portofolio`).
+    - Atur variabel `DB_DATABASE`, `DB_USERNAME`, dan `DB_PASSWORD`.
+6.  **Jalankan migrasi dan seeder:**
+    Perintah ini akan membuat semua tabel dan mengisinya dengan data awal (akun admin, guru, siswa, kategori, dan tag).
+    ```bash
+    php artisan migrate:fresh --seed
+    ```
+7.  **Hubungkan folder storage:**
+    ```bash
+    php artisan storage:link
+    ```
+8.  **Jalankan server pengembangan:**
+    ```bash
+    npm run dev
+    ```
+9.  **Akses aplikasi:**
+    Buka `http://nama-proyek.test` (jika menggunakan Laragon) atau `http://127.0.0.1:8000` (jika menggunakan `php artisan serve`).
 
-Buat kunci aplikasi, jalankan migrasi untuk membuat semua tabel, dan buat *symbolic link* untuk penyimpanan file.
+---
 
-```bash
-php artisan key:generate
-php artisan migrate
-php artisan storage:link
-```
+## Akun Default
 
-### 3.5. Compile Aset Frontend
+Setelah menjalankan `php artisan migrate:fresh --seed`, Anda dapat menggunakan akun berikut untuk login:
 
-Jalankan Vite development server. Biarkan terminal ini tetap berjalan saat Anda mengembangkan.
+-   **Admin:**
+    -   Email: `admin@example.com`
+-   **Guru RPL:**
+    -   Email: `guru-rpl@example.com`
+-   **Guru DKV:**
+    -   Email: `guru-dkv@example.com`
+-   **Siswa:**
+    -   Seeder akan membuat 20 akun siswa acak (10 RPL, 10 DKV). Anda bisa melihat email mereka langsung di database pada tabel `users`.
+-   **Password Universal:**
+    -   Password untuk **semua** akun di atas adalah: `password`
 
-```bash
-npm run dev
-```
+---
 
-### 3.6. Buat Akun Admin Pertama
+## Panduan Deployment ke Hosting
 
-Gunakan `tinker` untuk membuat akun admin pertama Anda.
+Berikut adalah panduan umum untuk men-deploy aplikasi Laravel ini ke *shared hosting* (cPanel) atau VPS.
 
-```bash
-php artisan tinker
-```
+### 1. Persiapan Server
+- Pastikan server Anda memenuhi persyaratan Laravel (PHP 8.2+, ekstensi yang diperlukan seperti Mbstring, DOM, Ctype, dll).
+- Anda memiliki akses SSH (untuk VPS) atau File Manager & Terminal (untuk cPanel).
 
-Di dalam *tinker*, jalankan kode ini:
+### 2. Unggah Proyek
+- Unggah semua file proyek Anda (kecuali folder `node_modules` dan `vendor`) ke direktori root Anda (misalnya `~/public_html` atau direktori domain Anda).
+- **Penting:** Pastikan file yang diawali dengan titik (seperti `.env.example`, `.editorconfig`) juga ikut terunggah.
 
-```php
-\App\Models\User::create([
-    'name' => 'Admin Sekolah',
-    'email' => 'admin@assyifa.sch.id',
-    'password' => bcrypt('password'), // Ganti 'password' dengan password yang aman
-    'role' => 'admin',
-    'email_verified_at' => now(),
-]);
-```
+### 3. Konfigurasi Produksi
+- **Install Dependensi:** Masuk via SSH/Terminal dan jalankan:
+  ```bash
+  composer install --optimize-autoloader --no-dev
+  npm install
+  npm run build
 
-Ketik `exit` untuk keluar dari *tinker*.
+  - **Buat File `.env`:** Salin `.env.example` menjadi `.env`.
+    ```bash
+    cp .env.example .env
+    ```
+  - **Edit File `.env` untuk Produksi:**
+      - `APP_ENV=production`
+      - `APP_DEBUG=false`
+      - `APP_URL=https://domain-anda.com`
+      - Isi detail koneksi **database produksi** Anda.
+      - Jalankan `php artisan key:generate` untuk membuat kunci aplikasi yang aman.
 
-### 3.7. Selesai\!
+### 4\. Setup Database & Storage
 
-Akses aplikasi melalui URL lokal Anda (misal: `http://smk-assyifa-portfolio.test`). Login dengan akun admin yang baru saja dibuat.
+  - Impor database Anda atau jalankan migrasi & seeder jika ini adalah instalasi baru:
+    ```bash
+    php artisan migrate --seed --force
+    ```
+  - Buat *symbolic link* agar file di `storage` bisa diakses publik:
+    ```bash
+    php artisan storage:link
+    ```
 
------
+### 5\. Optimasi
 
-## 4\. Panduan Deployment (Publikasi ke Server)
-
-Langkah-langkah ini untuk mempublikasikan aplikasi ke server *hosting* yang mendukung PHP & MySQL.
-
-### 4.1. Unggah Kode
-
-Gunakan `git` untuk men-clone *repository* Anda ke direktori server (misal: `/var/www/assyifa-portfolio`).
-
-### 4.2. Install Dependensi (Mode Produksi)
-
-```bash
-composer install --optimize-autoloader --no-dev
-npm install
-npm run build
-```
-
-### 4.3. Konfigurasi `.env` Produksi
-
-Salin `cp .env.example .env` dan edit file `.env`. Pastikan Anda mengatur:
-
-  - `APP_ENV=production`
-  - `APP_DEBUG=false`
-  - `APP_URL=https://domain-anda.com`
-  - Detail koneksi database produksi Anda.
-
-### 4.4. Jalankan Perintah Produksi
-
-Perintah ini akan mengoptimalkan aplikasi Anda untuk performa dan keamanan.
+Jalankan perintah ini untuk membuat *cache* dari konfigurasi, rute, dan *view* untuk performa yang lebih cepat.
 
 ```bash
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
-php artisan migrate --force
-php artisan storage:link
 ```
 
-### 4.5. Konfigurasi Web Server
+### 6\. Arahkan Document Root (Paling Penting)
 
-Arahkan *document root* dari domain Anda ke direktori `/public` di dalam folder proyek. Ini adalah langkah keamanan yang sangat penting.
+  - **Shared Hosting (cPanel):** Di pengaturan domain Anda, ubah "Document Root" dari `public_html` menjadi `public_html/public`.
+  - **VPS (Nginx/Apache):** Konfigurasi *virtual host* Anda agar `root` atau `DocumentRoot` menunjuk ke direktori `/public` dari proyek Anda.
 
-### 4.6. Atur Hak Akses Folder
-
-Pastikan web server (misalnya `www-data`) memiliki izin untuk menulis ke folder `storage` dan `bootstrap/cache`.
-
-```bash
-sudo chown -R www-data:www-data /var/www/assyifa-portfolio/storage
-sudo chown -R www-data:www-data /var/www/assyifa-portfolio/bootstrap/cache
-```
-
------
-
-## 5\. Catatan Kustomisasi
-
-Bagian ini menjelaskan cara memodifikasi aspek-aspek kunci dari aplikasi.
-
-### 5.1. Kustomisasi Desain & Branding
-
-  - **Logo:** Logo utama aplikasi (teks "AS-SYIFA") adalah sebuah komponen Blade. Untuk menggantinya dengan file SVG logo resmi, edit file `resources/views/components/application-logo.blade.php`.
-  - **Warna Utama:** Warna-warna utama seperti Indigo (`indigo`) dan Abu-abu (`gray`) didefinisikan dalam file konfigurasi Tailwind. Edit file `tailwind.config.js` untuk mengubah palet warna sesuai dengan *brand guideline* sekolah. Setelah mengubah, jalankan ulang `npm run build`.
-  - **Font:** Font utama (Figtree) dimuat dari Google Fonts melalui file `resources/views/layouts/guest.blade.php` dan `app.blade.php`. Anda bisa mengubahnya di sana.
-
-### 5.2. Menambah Jurusan Baru
-
-Jika sekolah menambah jurusan baru (misalnya "Multimedia"):
-
-1.  **Update Validasi:** Di `app/Http/Controllers/Admin/UserController.php`, tambahkan jurusan baru ke dalam aturan validasi `Rule::in()`.
-2.  **Update Form:** Di `resources/views/admin/users/create.blade.php` dan `edit.blade.php`, tambahkan `<option>` baru di dalam `<select>` untuk jurusan.
-3.  **Update Logika Form Dinamis:** Di `resources/views/projects/create.blade.php` dan `edit.blade.php`, tambahkan logika `x-data` dan `x-show` baru untuk menampilkan input spesifik jurusan tersebut.
-
-### 5.3. Mengubah Teks & Label
-
-Sebagian besar teks statis (judul halaman, label tombol, dll.) ditulis langsung (*hardcoded*) di dalam file-file Blade (`.blade.php`) di direktori `resources/views/`. Cari teks yang ingin diubah dan edit langsung di file yang relevan.
-
------
-
-## 6\. Potensi Pengembangan Selanjutnya
-
-  - **Form Multi-Step:** Mengubah form tambah/edit proyek menjadi beberapa langkah.
-  - **Fitur Filter Canggih:** Mengaktifkan filter di halaman galeri publik.
-  - **Notifikasi Email:** Mengirim notifikasi kepada siswa saat proyek disetujui/ditolak.
-  - **Halaman Profil Publik Siswa:** Membangun halaman khusus untuk setiap siswa.
+Ini adalah langkah keamanan krusial untuk mencegah akses langsung ke file sensitif seperti `.env`.
