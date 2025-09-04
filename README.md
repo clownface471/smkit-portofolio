@@ -34,7 +34,7 @@ Pastikan Anda memiliki Laragon (atau server lokal sejenis), Composer, dan Node.j
 ### 3.1. Clone Repository
 
 ```bash
-git clone [https://github.com/clownface471/smkit-portofolio](https://github.com/clownface471/smkit-portofolio) smk-assyifa-portfolio
+git clone https://github.com/clownface471/smkit-portofolio smk-assyifa-portfolio
 cd smk-assyifa-portfolio
 ````
 
