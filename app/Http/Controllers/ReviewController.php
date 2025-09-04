@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Project;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+// Pastikan 3 baris ini ada
+use App\Mail\ProjectApproved;
+use App\Mail\ProjectRejected;
+use Illuminate\Support\Facades\Mail;
 
 class ReviewController extends Controller
 {
@@ -30,9 +33,16 @@ class ReviewController extends Controller
     public function approve(Request $request, Project $project): RedirectResponse
     {
         $request->validate(['confirmation' => 'required']);
+
         $project->status = 'published';
         $project->rejection_reason = null;
         $project->save();
+
+        // ======================================================
+        // PERUBAHAN: Kirim email notifikasi persetujuan
+        Mail::to($project->user->email)->send(new ProjectApproved($project));
+        // ======================================================
+
         return redirect(route('review.index'))->with('success', 'Proyek berhasil disetujui dan dipublikasikan.');
     }
 
@@ -41,10 +51,16 @@ class ReviewController extends Controller
         $validated = $request->validate([
             'rejection_reason' => 'required|string',
         ]);
+
         $project->status = 'draft';
         $project->rejection_reason = $validated['rejection_reason'];
         $project->save();
+
+        // ======================================================
+        // PERUBAHAN: Kirim email notifikasi penolakan
+        Mail::to($project->user->email)->send(new ProjectRejected($project));
+        // ======================================================
+
         return redirect(route('review.index'))->with('success', 'Proyek berhasil ditolak dan dikembalikan ke siswa.');
     }
 }
-

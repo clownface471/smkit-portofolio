@@ -101,8 +101,6 @@
                                 @endif
                             </div>
 
-                            <!-- === PERBAIKAN DI SINI === -->
-                            <!-- Pilihan Video (Hanya tampil jika belum ada video) -->
                             @if(!$project->media->firstWhere('file_type', 'like', 'video_%'))
                             <div class="mt-4">
                                 <x-input-label :value="__('Tambahkan Video? (Opsional, akan menggantikan video lama jika ada)')" />
@@ -134,7 +132,6 @@
                                 <x-input-error :messages="$errors->get('video_embed_url')" class="mt-2" />
                             </div>
                             @endif
-                             <!-- === AKHIR PERBAIKAN === -->
                         </div>
                         
                         <!-- Input DKV -->
@@ -160,6 +157,7 @@
                         </div>
                     </form>
                 </div>
+                @include('projects.partials.comments-section')
             </div>
         </div>
     </x-app-layout>

@@ -38,5 +38,9 @@ class Project extends Model
     {
         return $this->hasMany(ProjectMedia::class);
     }
+    public function comments()
+    {
+        return $this->hasMany(Comment::class)->latest(); // Tampilkan komentar terbaru dulu
+    }
 }
 

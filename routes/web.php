@@ -3,7 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
-use App\Http\Controllers\PublicController; // Tambahkan ini
+use App\Http\Controllers\PublicController;
 use App\Http\Controllers\ReviewController;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 */
 Route::get('/', [PublicController::class, 'home'])->name('home');
 Route::get('/portofolio', [PublicController::class, 'gallery'])->name('portofolio.gallery');
+Route::get('/siswa/{user:name}', [PublicController::class, 'showSiswa'])->name('siswa.show');
 Route::get('/portofolio/{project}', [PublicController::class, 'show'])->name('portofolio.show');
 
 
@@ -30,10 +31,11 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::resource('projects', ProjectController::class)->except(['show', 'index']); // Kita sudah punya halaman manajemen sendiri
-    Route::get('/my-projects', [ProjectController::class, 'index'])->name('projects.index'); // Ganti agar lebih jelas
+    Route::resource('projects', ProjectController::class)->except(['show', 'index']); 
+    Route::get('/my-projects', [ProjectController::class, 'index'])->name('projects.index'); 
     Route::patch('/projects/{project}/submit', [ProjectController::class, 'submitForReview'])->name('projects.submit');
     Route::get('/projects/{project}/preview', [ProjectController::class, 'preview'])->name('projects.preview');
+    Route::post('/projects/{project}/comments', [App\Http\Controllers\CommentController::class, 'store'])->name('comments.store');
 });
 
 // Rute untuk Guru & Admin

@@ -55,6 +55,7 @@
                      <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Deskripsi Proyek</h3>
                      <p class="mt-2 text-gray-600 dark:text-gray-400 whitespace-pre-wrap">{{ $project->description }}</p>
                 </div>
+                @include('projects.partials.comments-section')
             </div>
         </div>
     </div>

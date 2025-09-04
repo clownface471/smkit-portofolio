@@ -1,4 +1,4 @@
-<svg viewBox="0 0 100 28" xmlns="http://www.w3.org/2000/svg" {{ $attributes }}>
+<img src="{{ asset('images/logo.png') }}" {{ $attributes }}>
     <style>
         .logo-text {
             font-family: Figtree, sans-serif;
@@ -7,7 +7,4 @@
             letter-spacing: -0.5px;
         }
     </style>
-    <text x="0" y="20" class="logo-text fill-current">
-        AS-SYIFA
-    </text>
-</svg>
+</img>
