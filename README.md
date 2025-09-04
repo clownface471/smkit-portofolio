@@ -161,10 +161,33 @@ sudo chown -R www-data:www-data /var/www/assyifa-portfolio/bootstrap/cache
 
 -----
 
-## 5\. Potensi Pengembangan Selanjutnya
+## 5\. Catatan Kustomisasi
+
+Bagian ini menjelaskan cara memodifikasi aspek-aspek kunci dari aplikasi.
+
+### 5.1. Kustomisasi Desain & Branding
+
+  - **Logo:** Logo utama aplikasi (teks "AS-SYIFA") adalah sebuah komponen Blade. Untuk menggantinya dengan file SVG logo resmi, edit file `resources/views/components/application-logo.blade.php`.
+  - **Warna Utama:** Warna-warna utama seperti Indigo (`indigo`) dan Abu-abu (`gray`) didefinisikan dalam file konfigurasi Tailwind. Edit file `tailwind.config.js` untuk mengubah palet warna sesuai dengan *brand guideline* sekolah. Setelah mengubah, jalankan ulang `npm run build`.
+  - **Font:** Font utama (Figtree) dimuat dari Google Fonts melalui file `resources/views/layouts/guest.blade.php` dan `app.blade.php`. Anda bisa mengubahnya di sana.
+
+### 5.2. Menambah Jurusan Baru
+
+Jika sekolah menambah jurusan baru (misalnya "Multimedia"):
+
+1.  **Update Validasi:** Di `app/Http/Controllers/Admin/UserController.php`, tambahkan jurusan baru ke dalam aturan validasi `Rule::in()`.
+2.  **Update Form:** Di `resources/views/admin/users/create.blade.php` dan `edit.blade.php`, tambahkan `<option>` baru di dalam `<select>` untuk jurusan.
+3.  **Update Logika Form Dinamis:** Di `resources/views/projects/create.blade.php` dan `edit.blade.php`, tambahkan logika `x-data` dan `x-show` baru untuk menampilkan input spesifik jurusan tersebut.
+
+### 5.3. Mengubah Teks & Label
+
+Sebagian besar teks statis (judul halaman, label tombol, dll.) ditulis langsung (*hardcoded*) di dalam file-file Blade (`.blade.php`) di direktori `resources/views/`. Cari teks yang ingin diubah dan edit langsung di file yang relevan.
+
+-----
+
+## 6\. Potensi Pengembangan Selanjutnya
 
   - **Form Multi-Step:** Mengubah form tambah/edit proyek menjadi beberapa langkah.
   - **Fitur Filter Canggih:** Mengaktifkan filter di halaman galeri publik.
   - **Notifikasi Email:** Mengirim notifikasi kepada siswa saat proyek disetujui/ditolak.
   - **Halaman Profil Publik Siswa:** Membangun halaman khusus untuk setiap siswa.
-
