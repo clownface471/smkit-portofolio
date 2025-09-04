@@ -4,38 +4,30 @@ namespace App\Http\Controllers;
 
 use App\Models\Project;
 use App\Models\User;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use App\Models\Tag;
 
 class PublicController extends Controller
 {
-    /**
-     * Menampilkan halaman utama (homepage).
-     */
-    public function home(): View
+    public function index()
     {
-        // Ambil 6 proyek terbaru yang sudah dipublikasikan sebagai "featured"
-        $featuredProjects = Project::where('status', 'published')
-                                    ->with('user', 'media','tags')
-                                    ->latest()
-                                    ->take(6)
-                                    ->get();
-
-        return view('home', [
-            'featuredProjects' => $featuredProjects
-        ]);
+        $projects = Project::where('status', 'published')->with('user', 'media', 'tags')->latest()->take(6)->get();
+        return view('home', compact('projects'));
     }
 
-    /**
-     * Menampilkan halaman galeri portofolio.
-     */
     public function gallery(Request $request)
     {
-        // Mulai query untuk mengambil proyek yang sudah 'published'
+        $categories = Category::with('tags')->orderBy('name')->get();
+
+        $tags = $categories->flatMap(function ($category) {
+            return $category->tags;
+        });
+
         $query = Project::where('status', 'published');
 
-        // Filter berdasarkan pencarian (search)
-        if ($request->has('search') && $request->search != '') {
+        if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
                 $q->where('title', 'like', '%' . $request->search . '%')
                 ->orWhereHas('user', function ($userQuery) use ($request) {
@@ -44,44 +36,45 @@ class PublicController extends Controller
             });
         }
 
-        // Filter berdasarkan jurusan
-        if ($request->has('jurusan') && $request->jurusan != '') {
+        if ($request->filled('jurusan')) {
             $query->whereHas('user', function ($userQuery) use ($request) {
                 $userQuery->where('jurusan', $request->jurusan);
             });
         }
 
-        // Ambil data hasil query, urutkan dari yang terbaru, dan paginasi
+        if ($request->filled('include_tags')) {
+            $includeTags = $request->include_tags;
+            $query->whereHas('tags', function ($q) use ($includeTags) {
+                $q->whereIn('tags.id', $includeTags);
+            });
+        }
+
+        if ($request->filled('exclude_tags')) {
+            $excludeTags = $request->exclude_tags;
+            $query->whereDoesntHave('tags', function ($q) use ($excludeTags) {
+                $q->whereIn('tags.id', $excludeTags);
+            });
+        }
+
         $projects = $query->with('user', 'media', 'tags')
                         ->latest()
                         ->paginate(12)
-                        ->withQueryString(); // Agar filter tetap aktif saat pindah halaman
+                        ->withQueryString();
 
-        return view('portofolio.gallery', compact('projects'));
+        return view('portofolio.gallery', compact('projects', 'tags', 'categories'));
     }
-    /**
-     * Menampilkan halaman detail satu proyek.
-     */
+    public function show(Project $project): View
+    {
+        $project->load('user', 'media', 'tags');
+        return view('portofolio.show', ['project' => $project]);
+    }
 
-    // TAMBAHKAN METHOD INI DI DALAM CLASS PUBLIC CONTROLLER
     public function showSiswa(User $user)
     {
-        // Load relasi projects, tapi hanya yang sudah berstatus 'published'
         $user->load(['projects' => function ($query) {
             $query->where('status', 'published')->latest();
         }]);
 
         return view('portofolio.siswa-show', compact('user'));
-    }
-    public function show(Project $project): View
-    {
-        if ($project->status !== 'published') {
-            abort(404);
-        }
-
-        // Ganti view yang digunakan di sini
-        return view('portofolio.show', [
-            'project' => $project->load('user', 'media','tags')
-        ]);
     }
 }
