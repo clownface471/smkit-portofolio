@@ -16,7 +16,7 @@ class PublicController extends Controller
     {
         // Ambil 6 proyek terbaru yang sudah dipublikasikan sebagai "featured"
         $featuredProjects = Project::where('status', 'published')
-                                    ->with('user', 'media')
+                                    ->with('user', 'media','tags')
                                     ->latest()
                                     ->take(6)
                                     ->get();
@@ -52,7 +52,7 @@ class PublicController extends Controller
         }
 
         // Ambil data hasil query, urutkan dari yang terbaru, dan paginasi
-        $projects = $query->with('user', 'media')
+        $projects = $query->with('user', 'media', 'tags')
                         ->latest()
                         ->paginate(12)
                         ->withQueryString(); // Agar filter tetap aktif saat pindah halaman
@@ -81,7 +81,7 @@ class PublicController extends Controller
 
         // Ganti view yang digunakan di sini
         return view('portofolio.show', [
-            'project' => $project->load('user', 'media')
+            'project' => $project->load('user', 'media','tags')
         ]);
     }
 }

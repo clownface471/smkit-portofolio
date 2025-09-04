@@ -1,147 +1,114 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+            Pratinjau Proyek: {{ $project->title }}
+        </h2>
+    </x-slot>
 
-    <title>Preview: {{ $project->title }} - {{ config('app.name', 'Laravel') }}</title>
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            {{-- Inisialisasi Alpine.js untuk Lightbox --}}
+            <div x-data="{ lightboxOpen: false, lightboxSrc: '' }" class="min-h-screen"> {{-- Tambahkan min-h-screen di sini --}}
+                <div class="bg-gray-100 dark:bg-gray-900 rounded-lg shadow-sm">
+                    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+                        <div class="mb-8">
+                            <a href="{{ url()->previous() }}" class="inline-flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                                    <path fill-rule="evenodd" d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z" clip-rule="evenodd" />
+                                </svg>
+                                Kembali ke Dashboard
+                            </a>
+                        </div>
 
-    <!-- Scripts -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-x-12 gap-y-10">
 
-    <style>
-        /* Styling dasar tidak berubah */
-        body { background-color: #f3f4f6; color: #1f2937; }
-        .dark body { background-color: #111827; color: #f9fafb; }
-        .preview-container { max-width: 900px; margin: 40px auto; padding: 40px; background-color: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
-        .dark .preview-container { background-color: #1f2937; }
-        .preview-header { border-bottom: 1px solid #e5e7eb; padding-bottom: 20px; margin-bottom: 20px; }
-        .dark .preview-header { border-color: #374151; }
-        .preview-title { font-size: 2.25rem; font-weight: bold; }
-        .preview-author { font-size: 1.125rem; color: #4b5563; }
-        .dark .preview-author { color: #9ca3af; }
-        .preview-section-title { font-size: 1.5rem; font-weight: 600; margin-top: 30px; margin-bottom: 15px; }
-        .preview-description p { line-height: 1.6; color: #374151; }
-        .dark .preview-description p { color: #d1d5db; }
-        .preview-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
-        .preview-gallery img, .preview-gallery .video-thumb { width: 100%; height: 150px; border-radius: 8px; object-fit: cover; cursor: pointer; transition: transform 0.2s; }
-        .preview-gallery img:hover, .preview-gallery .video-thumb:hover { transform: scale(1.05); }
-        .preview-link { display: inline-block; margin-top: 10px; margin-right: 10px; padding: 8px 16px; background-color: #4f46e5; color: white; text-decoration: none; border-radius: 6px; transition: background-color 0.3s; font-size: 0.875rem; }
-        .preview-link:hover { background-color: #4338ca; }
-        .embed-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; background: #000; border-radius: 8px; }
-        .embed-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-        .video-thumb { position: relative; display: flex; align-items: center; justify-content: center; background-color: #000; }
-        .video-thumb .play-icon { font-size: 3rem; color: white; opacity: 0.8; }
-    </style>
-</head>
-<body class="font-sans antialiased">
-    {{-- Inisialisasi Alpine.js untuk mengontrol lightbox --}}
-    <div x-data="{ lightboxOpen: false, lightboxSrc: '', isImage: true }">
-        <div class="preview-container">
-            <div class="text-center bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-300 p-3 rounded-md mb-6">
-                <strong>Ini adalah Halaman Preview.</strong> Tampilan ini meniru bagaimana proyek Anda akan terlihat oleh publik.
-                <a href="{{ url()->previous() }}" class="font-bold underline ml-4">Kembali</a>
-            </div>
+                            {{-- Kolom Kiri: Detail Proyek (Sticky) --}}
+                            <div class="lg:col-span-1 lg:sticky lg:top-8 self-start max-h-[calc(100vh-10rem)] overflow-y-auto pr-2"> {{-- Penyesuaian sticky, max-h, dan overflow --}}
+                                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+                                    <p class="text-base font-semibold leading-7 text-assyifa-600 dark:text-assyifa-500">{{ $project->user->jurusan }}</p>
+                                    <h1 class="mt-2 text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl break-words"> {{-- Tambah break-words --}}
+                                        {{ $project->title }}
+                                    </h1>
+                                    <p class="mt-4 text-base text-gray-600 dark:text-gray-300">
+                                        Oleh
+                                        <a href="#" class="font-semibold text-assyifa-600 dark:text-assyifa-500">
+                                            {{ $project->user->name }}
+                                        </a>
+                                    </p>
 
-            <header class="preview-header">
-                <h1 class="preview-title">{{ $project->title }}</h1>
-                <p class="preview-author">Oleh: {{ $project->user->name }} ({{ $project->user->jurusan }})</p>
-            </header>
+                                    <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Tentang Proyek</h2>
+                                        <div class="mt-2 prose prose-sm dark:prose-invert max-w-none text-gray-600 dark:text-gray-400 break-words"> {{-- Tambah break-words --}}
+                                            {!! nl2br(e($project->description)) !!}
+                                        </div>
+                                    </div>
 
-            <main>
-                <section class="preview-description">
-                    <h2 class="preview-section-title">Deskripsi Proyek</h2>
-                    <div class="prose dark:prose-invert max-w-none">{!! nl2br(e($project->description)) !!}</div>
-                </section>
+                                    @if($project->github_url || $project->demo_url || $project->embed_url || $project->source_url)
+                                        <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Tautan & Sumber</h3>
+                                            <div class="mt-4 flex flex-col space-y-3">
+                                                @if($project->demo_url)<a href="{{ $project->demo_url }}" target="_blank" class="font-medium text-assyifa-600 dark:text-assyifa-500 hover:underline">Lihat Demo Live</a>@endif
+                                                @if($project->github_url)<a href="{{ $project->github_url }}" target="_blank" class="font-medium text-gray-600 dark:text-gray-400 hover:underline">Lihat di GitHub</a>@endif
+                                                @if($project->embed_url)<a href="{{ $project->embed_url }}" target="_blank" class="font-medium text-gray-600 dark:text-gray-400 hover:underline">Tautan Interaktif</a>@endif
+                                                @if($project->source_url)<a href="{{ $project->source_url }}" target="_blank" class="font-medium text-gray-600 dark:text-gray-400 hover:underline">Download File Mentah</a>@endif
+                                            </div>
+                                        </div>
+                                    @endif
 
-                @if($project->media->isNotEmpty())
-                <section class="preview-media">
-                    <h2 class="preview-section-title">Galeri & Media</h2>
-                    {{-- **PERBAIKAN DI SINI:** Kedua loop sekarang ada di dalam satu div galeri --}}
-                    <div class="preview-gallery">
-                        {{-- Loop untuk gambar dan video yang di-upload --}}
-                        @foreach($project->media->whereIn('file_type', ['image', 'video_upload']) as $media)
-                            @if($media->file_type === 'image')
-                                <img src="{{ asset('storage/' . $media->file_path) }}" alt="Gambar proyek"
-                                     @click="lightboxOpen = true; lightboxSrc = '{{ asset('storage/' . $media->file_path) }}'; isImage = true">
-                            @elseif($media->file_type === 'video_upload')
-                                <div class="video-thumb" @click="lightboxOpen = true; lightboxSrc = '{{ asset('storage/' . $media->file_path) }}'; isImage = false">
-                                    <span class="play-icon">&#9658;</span>
+                                    @if($project->tags->isNotEmpty())
+                                        <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Teknologi & Kategori</h3>
+                                            <div class="mt-4 flex flex-wrap gap-2">
+                                                @foreach($project->tags as $tag)
+                                                    <span class="inline-block rounded-full bg-gray-100 dark:bg-gray-700 px-3 py-1 text-sm font-medium text-gray-700 dark:text-gray-200">{{ $tag->name }}</span>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    @endif
                                 </div>
-                            @endif
-                        @endforeach
+                            </div>
 
-                        {{-- Loop untuk video YouTube/Vimeo yang di-embed --}}
-                        @foreach($project->media->where('file_type', 'video_embed') as $media)
-                            @if(filter_var($media->embed_url, FILTER_VALIDATE_URL))
-                                @php
-                                    $embedUrl = $media->embed_url;
-                                    if (str_contains($embedUrl, 'youtube.com/watch?v=')) {
-                                        $embedUrl = str_replace('watch?v=', 'embed/', $embedUrl);
-                                    } elseif (str_contains($embedUrl, 'youtu.be/')) {
-                                        $videoId = last(explode('/', $embedUrl));
-                                        $embedUrl = 'https://www.youtube.com/embed/' . $videoId;
-                                    }
-                                @endphp
-                                 <div class="embed-container">
-                                    <iframe src="{{ $embedUrl }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                                </div>
-                            @endif
-                        @endforeach
+                            {{-- Kolom Kanan: Media Proyek --}}
+                            <div class="lg:col-span-2 space-y-6">
+                                @forelse($project->media->sortBy('sort_order') as $media)
+                                    <div class="break-inside-avoid">
+                                        @if($media->file_type === 'image')
+                                            <img src="{{ asset('storage/' . $media->file_path) }}" alt="Gambar proyek"
+                                                 class="rounded-lg shadow-lg w-full h-auto object-cover cursor-pointer transition-transform hover:scale-[1.02]"
+                                                 @click="lightboxOpen = true; lightboxSrc = '{{ asset('storage/' . $media->file_path) }}'">
+                                        @elseif($media->file_type === 'video_upload')
+                                            <video controls class="rounded-lg shadow-lg w-full"><source src="{{ asset('storage/' . $media->file_path) }}" type="video/mp4"></video>
+                                        @elseif($media->file_type === 'video_embed' && filter_var($media->embed_url, FILTER_VALIDATE_URL))
+                                            @php
+                                                $embedUrl = $media->embed_url;
+                                                if (str_contains($embedUrl, 'youtube.com/watch?v=')) {
+                                                    $embedUrl = str_replace('watch?v=', 'embed/', $embedUrl);
+                                                } elseif (str_contains($embedUrl, 'youtu.be/')) {
+                                                    $videoId = last(explode('/', $embedUrl));
+                                                    $embedUrl = 'https://www.youtube.com/embed/' . $videoId;
+                                                }
+                                            @endphp
+                                            <div class="aspect-video w-full">
+                                                <iframe src="{{ $embedUrl }}" class="rounded-lg shadow-lg w-full h-full" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                            </div>
+                                        @endif
+                                    </div>
+                                @empty
+                                    <div class="aspect-video w-full rounded-lg bg-white dark:bg-gray-800 flex items-center justify-center shadow-lg">
+                                        <span class="text-gray-500">Media tidak tersedia untuk proyek ini.</span>
+                                    </div>
+                                @endforelse
+                            </div>
+                        </div>
                     </div>
-                </section>
-                @endif
+                </div>
 
-                <section class="preview-links">
-                    {{-- ... (bagian tautan tidak berubah) ... --}}
-                    <h2 class="preview-section-title">Tautan & Sumber</h2>
-                    @if($project->github_url)
-                        <a href="{{ $project->github_url }}" target="_blank" class="preview-link">Lihat di GitHub</a>
-                    @endif
-                    @if($project->demo_url)
-                        <a href="{{ $project->demo_url }}" target="_blank" class="preview-link">Lihat Demo Live</a>
-                    @endif
-                    @if($project->embed_url)
-                         <a href="{{ $project->embed_url }}" target="_blank" class="preview-link">Tautan Interaktif (Figma, dll)</a>
-                    @endif
-                    @if($project->source_url)
-                         <a href="{{ $project->source_url }}" target="_blank" class="preview-link">Download File Mentah</a>
-                    @endif
-                </section>
-            </main>
-        </div>
-
-        {{-- Lightbox/Modal tidak berubah --}}
-        <div x-show="lightboxOpen"
-             x-transition:enter="transition ease-out duration-300"
-             x-transition:enter-start="opacity-0"
-             x-transition:enter-end="opacity-100"
-             x-transition:leave="transition ease-in duration-300"
-             x-transition:leave-start="opacity-100"
-             x-transition:leave-end="opacity-0"
-             @click.self="lightboxOpen = false"
-             @keydown.escape.window="lightboxOpen = false"
-             class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50"
-             x-cloak>
-            
-            <div class="relative">
-                <button @click="lightboxOpen = false" class="absolute -top-10 right-0 text-white text-3xl">&times;</button>
-                <div class="bg-white dark:bg-black rounded-lg overflow-hidden">
-                    <template x-if="isImage">
-                        <img :src="lightboxSrc" alt="Tampilan Penuh" class="max-w-screen-lg max-h-[85vh] object-contain">
-                    </template>
-                    <template x-if="!isImage">
-                        <video :src="lightboxSrc" controls autoplay class="max-w-screen-lg max-h-[85vh]"></video>
-                    </template>
+                {{-- Lightbox/Modal --}}
+                <div x-show="lightboxOpen" x-transition @click.self="lightboxOpen = false" @keydown.escape.window="lightboxOpen = false" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50" x-cloak>
+                    <div class="relative"><button @click="lightboxOpen = false" class="absolute -top-10 right-0 text-white text-3xl">&times;</button><div class="bg-white dark:bg-black rounded-lg overflow-hidden"><img :src="lightboxSrc" alt="Tampilan Penuh" class="max-w-screen-lg max-h-[85vh] object-contain"></div></div>
                 </div>
             </div>
         </div>
     </div>
-</body>
-</html>
-
+</x-app-layout>

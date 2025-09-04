@@ -6,24 +6,21 @@
                 <p class="mt-2 text-lg leading-8 text-gray-600 dark:text-gray-400">Jelajahi semua karya inovatif yang telah dipublikasikan oleh para siswa.</p>
             </div>
 
-            {{-- ====================================================== --}}
-            {{-- KODE BARU DIMULAI DI SINI --}}
-            {{-- ====================================================== --}}
             <form action="{{ route('portofolio.gallery') }}" method="GET" class="mb-12">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {{-- Search Input --}}
                     <div class="md:col-span-2">
                         <label for="search" class="sr-only">Cari Portofolio</label>
                         <input type="text" name="search" id="search" placeholder="Cari berdasarkan judul atau nama siswa..."
-                            value="{{ request('search') }}"
-                            class="w-full rounded-md dark:bg-gray-900 dark:border-gray-700 focus:ring-green-500 focus:border-green-500 dark:text-gray-300">
+                               value="{{ request('search') }}"
+                               class="w-full rounded-md dark:bg-gray-900 dark:border-gray-700 focus:ring-assyifa-500 focus:border-assyifa-500 dark:text-gray-300">
                     </div>
                     
                     {{-- Jurusan Filter --}}
                     <div>
                         <label for="jurusan" class="sr-only">Filter Jurusan</label>
                         <select name="jurusan" id="jurusan"
-                                class="w-full rounded-md dark:bg-gray-900 dark:border-gray-700 focus:ring-green-500 focus:border-green-500 dark:text-gray-300"
+                                class="w-full rounded-md dark:bg-gray-900 dark:border-gray-700 focus:ring-assyifa-500 focus:border-assyifa-500 dark:text-gray-300"
                                 onchange="this.form.submit()">
                             <option value="">Semua Jurusan</option>
                             <option value="RPL" @selected(request('jurusan') == 'RPL')>Rekayasa Perangkat Lunak</option>
@@ -32,9 +29,6 @@
                     </div>
                 </div>
             </form>
-            {{-- ====================================================== --}}
-            {{-- KODE BARU SELESAI DI SINI --}}
-            {{-- ====================================================== --}}
 
             <div class="grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
                 @forelse ($projects as $project)
@@ -49,23 +43,28 @@
                                 {{ $project->title }}
                             </a>
                         </h3>
-                            <div class="flex flex-wrap items-center gap-y-1 overflow-hidden text-sm leading-6 text-gray-300">
-                                {{-- PERUBAHAN DI SINI --}}
-                                <a href="{{ route('siswa.show', $project->user) }}" class="mr-2 relative z-10 hover:underline">
-                                    {{ $project->user->name }}
-                                </a>
-                                {{-- AKHIR PERUBAHAN --}}
-                                <div class="flex items-center gap-x-2">
-                                    <span class="font-medium bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-md px-1.5 py-0.5">{{ $project->user->jurusan }}</span>
-                                </div>
+                        <div class="flex flex-wrap items-center gap-y-1 overflow-hidden text-sm leading-6 text-gray-300">
+                            <a href="{{ route('siswa.show', $project->user) }}" class="mr-2 relative z-10 hover:underline">
+                                {{ $project->user->name }}
+                            </a>
+                            <div class="flex items-center gap-x-2">
+                                <span class="font-medium bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-md px-1.5 py-0.5">{{ $project->user->jurusan }}</span>
                             </div>
+                        </div>
+                        
+                        <div class="mt-4 flex flex-wrap gap-2 relative z-10">
+                            @foreach($project->tags->take(3) as $tag)
+                                <span class="inline-block rounded-full bg-gray-50/20 backdrop-blur-sm px-2 py-1 text-xs font-medium text-white">
+                                    {{ $tag->name }}
+                                </span>
+                            @endforeach
+                        </div>
                     </article>
                 @empty
-                    {{-- Pesan yang lebih baik ketika tidak ada hasil --}}
                     <div class="col-span-full text-center py-12">
                         <p class="text-gray-500 dark:text-gray-400 text-lg">Tidak ada proyek yang cocok dengan pencarian Anda.</p>
                         <p class="text-gray-400 dark:text-gray-500 mt-2">Coba ganti kata kunci atau reset filter.</p>
-                        <a href="{{ route('portofolio.gallery') }}" class="mt-4 inline-block text-sm text-green-600 dark:text-green-500 hover:underline">Reset Pencarian & Filter</a>
+                        <a href="{{ route('portofolio.gallery') }}" class="mt-4 inline-block text-sm text-assyifa-600 dark:text-assyifa-500 hover:underline">Reset Pencarian & Filter</a>
                     </div>
                 @endforelse
             </div>

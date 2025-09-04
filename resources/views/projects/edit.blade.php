@@ -17,7 +17,6 @@
                         @csrf
                         @method('PATCH')
 
-                        <!-- Judul & Deskripsi -->
                         <div>
                             <x-input-label for="title" :value="__('Judul Proyek')" />
                             <x-text-input id="title" class="block mt-1 w-full" type="text" name="title" :value="old('title', $project->title)" required autofocus />
@@ -29,9 +28,12 @@
                             <x-input-error :messages="$errors->get('description')" class="mt-2" />
                         </div>
 
+                        <div class="mt-4">
+                            @include('projects.partials._tags-selection')
+                        </div>
+
                         <hr class="my-6 border-gray-200 dark:border-gray-700">
 
-                        <!-- Tampilkan Media yang Sudah Ada -->
                         @if($project->media->isNotEmpty())
                         <div>
                             <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Media Saat Ini</h3>
@@ -68,7 +70,6 @@
                         <hr class="my-6 border-gray-200 dark:border-gray-700">
                         @endif
 
-                        <!-- Input RPL -->
                         <div x-show="isRpl" x-transition>
                             <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Link Proyek (RPL)</h3>
                             <div class="mt-4">
@@ -83,10 +84,8 @@
                             </div>
                         </div>
 
-                        <!-- Input DKV & Umum -->
                         <div>
                             <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Tambah Media Visual Baru</h3>
-                            <!-- Uploader Gambar -->
                             <div class="mt-4">
                                 <x-input-label for="images" :value="__('Upload Gambar Baru (Bisa lebih dari satu)')" />
                                 <input id="images" name="images[]" type="file" multiple class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 mt-2">
@@ -106,26 +105,24 @@
                                 <x-input-label :value="__('Tambahkan Video? (Opsional, akan menggantikan video lama jika ada)')" />
                                 <div class="flex items-center space-x-4 mt-2">
                                     <label class="flex items-center">
-                                        <input type="radio" x-model="videoChoice" name="video_type" value="none" class="dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800">
+                                        <input type="radio" x-model="videoChoice" name="video_type" value="none" class="dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-assyifa-600 shadow-sm focus:ring-assyifa-500 dark:focus:ring-offset-gray-800">
                                         <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">Tidak Ada</span>
                                     </label>
                                     <label class="flex items-center">
-                                        <input type="radio" x-model="videoChoice" name="video_type" value="upload" class="dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800">
+                                        <input type="radio" x-model="videoChoice" name="video_type" value="upload" class="dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-assyifa-600 shadow-sm focus:ring-assyifa-500 dark:focus:ring-offset-gray-800">
                                         <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">Upload File</span>
                                     </label>
                                     <label class="flex items-center">
-                                        <input type="radio" x-model="videoChoice" name="video_type" value="embed" class="dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800">
+                                        <input type="radio" x-model="videoChoice" name="video_type" value="embed" class="dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-assyifa-600 shadow-sm focus:ring-assyifa-500 dark:focus:ring-offset-gray-800">
                                         <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">Embed Link</span>
                                     </label>
                                 </div>
                             </div>
-                            <!-- Uploader Video -->
                             <div x-show="videoChoice === 'upload'" class="mt-4" x-transition>
                                 <x-input-label for="video_upload" :value="__('Upload File Video (Max: 20MB)')" />
                                 <input id="video_upload" name="video_upload" type="file" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 mt-2">
                                 <x-input-error :messages="$errors->get('video_upload')" class="mt-2" />
                             </div>
-                            <!-- Input Link Video -->
                             <div x-show="videoChoice === 'embed'" class="mt-4" x-transition>
                                 <x-input-label for="video_embed_url" :value="__('URL Video (YouTube, Vimeo, dll)')" />
                                 <x-text-input id="video_embed_url" class="block mt-1 w-full" type="url" name="video_embed_url" :value="old('video_embed_url')" />
@@ -134,7 +131,6 @@
                             @endif
                         </div>
                         
-                        <!-- Input DKV -->
                         <div x-show="isDkv" x-transition>
                              <hr class="my-6 border-gray-200 dark:border-gray-700">
                             <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Link Tambahan (DKV)</h3>
@@ -156,9 +152,8 @@
                             </x-primary-button>
                         </div>
                     </form>
+                    @include('projects.partials.comments-section')
                 </div>
-                @include('projects.partials.comments-section')
             </div>
         </div>
     </x-app-layout>
-

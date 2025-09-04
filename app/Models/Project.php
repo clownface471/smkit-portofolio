@@ -42,5 +42,9 @@ class Project extends Model
     {
         return $this->hasMany(Comment::class)->latest(); // Tampilkan komentar terbaru dulu
     }
+    public function tags()
+    {
+        return $this->belongsToMany(Tag::class);
+    }
 }
 

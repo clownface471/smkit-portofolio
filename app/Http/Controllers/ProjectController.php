@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use App\Models\Category;
+use App\Models\Tag;
 
 class ProjectController extends Controller
 {
@@ -21,7 +23,8 @@ class ProjectController extends Controller
 
     public function create(): View
     {
-        return view('projects.create');
+        $categories = Category::with('tags')->get();
+        return view('projects.create', compact('categories'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -41,6 +44,8 @@ class ProjectController extends Controller
             'video_type' => 'nullable|string|in:none,upload,embed',
             'video_upload' => [Rule::requiredIf($request->video_type === 'upload'), 'nullable', 'file', 'mimes:mp4,mov,avi,webm', 'max:20480'],
             'video_embed_url' => [Rule::requiredIf($request->video_type === 'embed'),'nullable','url'],
+            'tags' => 'nullable|array',
+            'tags.*' => 'exists:tags,id',
         ]);
 
         $projectData = [
@@ -51,8 +56,12 @@ class ProjectController extends Controller
             'embed_url' => $validated['embed_url'] ?? null,
             'source_url' => $validated['source_url'] ?? null,
         ];
-        
+
         $project = $request->user()->projects()->create($projectData);
+
+        if ($request->has('tags')) {
+            $project->tags()->sync($request->tags);
+        }
 
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
@@ -72,12 +81,16 @@ class ProjectController extends Controller
         return redirect(route('projects.index'))->with('success', 'Proyek berhasil ditambahkan!');
     }
 
-    public function edit(Request $request, Project $project): View
+    public function edit(Project $project): View
     {
-        if ($project->user_id !== $request->user()->id) {
+        if ($project->user_id !== Auth::id()) {
             abort(403);
         }
-        return view('projects.edit', ['project' => $project->load('media')]);
+
+        $categories = Category::with('tags')->get();
+        $projectTagIds = $project->tags->pluck('id')->toArray();
+
+        return view('projects.edit', compact('project', 'categories', 'projectTagIds'));
     }
 
     public function update(Request $request, Project $project): RedirectResponse
@@ -103,9 +116,10 @@ class ProjectController extends Controller
             'video_type' => 'nullable|string|in:none,upload,embed',
             'video_upload' => [Rule::requiredIf($request->video_type === 'upload'), 'nullable', 'file', 'mimes:mp4,mov,avi,webm', 'max:20480'],
             'video_embed_url' => [Rule::requiredIf($request->video_type === 'embed'), 'nullable', 'url'],
+            'tags' => 'nullable|array',
+            'tags.*' => 'exists:tags,id',
         ]);
 
-        // Hapus media lama yang dipilih
         if (!empty($validated['delete_media'])) {
             $mediaToDelete = ProjectMedia::whereIn('id', $validated['delete_media'])->where('project_id', $project->id)->get();
             foreach($mediaToDelete as $media) {
@@ -116,27 +130,23 @@ class ProjectController extends Controller
             }
         }
 
-        // Tambah gambar baru
         if ($request->hasFile('images')) {
-             foreach ($request->file('images') as $image) {
+            foreach ($request->file('images') as $image) {
                 $path = $image->store('project-images', 'public');
                 $project->media()->create(['file_path' => $path, 'file_name' => $image->getClientOriginalName(), 'file_type' => 'image']);
             }
         }
 
-        // Handle video baru (jika ada)
-        // Hapus video lama dulu jika ada video baru yang di-submit
         if ($request->video_type === 'upload' || $request->video_type === 'embed') {
             $oldVideo = $project->media()->where('file_type', 'like', 'video_%')->first();
             if ($oldVideo) {
-                 if ($oldVideo->file_type === 'video_upload') {
+                if ($oldVideo->file_type === 'video_upload') {
                     Storage::disk('public')->delete($oldVideo->file_path);
                 }
                 $oldVideo->delete();
             }
         }
-        
-        // Simpan video baru
+
         if ($request->video_type === 'upload' && $request->hasFile('video_upload')) {
             $video = $request->file('video_upload');
             $path = $video->store('project-videos', 'public');
@@ -145,12 +155,12 @@ class ProjectController extends Controller
             $project->media()->create(['file_path' => 'embed', 'file_name' => 'embed_link', 'embed_url' => $request->video_embed_url, 'file_type' => 'video_embed']);
         }
 
-        // Update data teks proyek
         $project->update($validated);
+        $project->tags()->sync($request->tags ?? []);
 
         return redirect(route('projects.index'))->with('success', 'Proyek berhasil diperbarui!');
     }
-    
+
     public function destroy(Request $request, Project $project): RedirectResponse
     {
         if ($project->user_id !== $request->user()->id) {
@@ -168,10 +178,11 @@ class ProjectController extends Controller
     public function preview(Request $request, Project $project): View
     {
         $user = $request->user();
-        // Izinkan guru/admin untuk melihat preview juga
         if ($user->role === 'siswa' && $project->user_id !== $user->id) {
             abort(403);
         }
+
+        $project->load('user', 'media', 'tags');
 
         return view('projects.preview', ['project' => $project]);
     }
