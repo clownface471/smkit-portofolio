@@ -28,7 +28,7 @@ Platform ini juga dilengkapi dengan sistem review oleh guru, di mana setiap kary
 - **Pencarian & Filter Canggih:**
     - Pencarian berdasarkan judul proyek atau nama siswa.
     - Filter berdasarkan jurusan (RPL/DKV).
-    - Filter multi-tag ala Mangadex (include/exclude) yang dikelompokkan berdasarkan kategori dan bisa disembunyikan.
+    - Filter multi-tag (include/exclude) yang dikelompokkan berdasarkan kategori dan bisa disembunyikan.
 - **Halaman Detail Proyek:** Tampilan modern dua kolom dengan informasi proyek yang *sticky* dan galeri media yang imersif (termasuk lightbox).
 - **Halaman Profil Publik Siswa:** Setiap siswa memiliki halaman profil sendiri yang menampilkan semua karya yang telah mereka publikasikan.
 
