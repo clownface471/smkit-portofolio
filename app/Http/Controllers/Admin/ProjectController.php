@@ -35,4 +35,12 @@ class ProjectController extends Controller
 
         return redirect(route('admin.projects.index'))->with('success', 'Proyek berhasil ditarik dari halaman publik.');
     }
+    public function toggleFeature(Project $project): RedirectResponse
+    {
+        $project->update(['is_featured' => !$project->is_featured]);
+
+        $message = $project->is_featured ? 'Proyek berhasil ditandai sebagai unggulan.' : 'Status unggulan pada proyek telah dihapus.';
+
+        return back()->with('success', $message);
+    }
 }

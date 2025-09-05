@@ -11,10 +11,25 @@ use App\Models\Tag;
 
 class PublicController extends Controller
 {
-    public function index()
+    public function home()
     {
-        $projects = Project::where('status', 'published')->with('user', 'media', 'tags')->latest()->take(6)->get();
-        return view('home', compact('projects'));
+        $featuredProjects = Project::where('status', 'published')
+                                ->where('is_featured', true)
+                                ->with('user', 'media', 'tags')
+                                ->latest()
+                                ->get();
+
+        $latestProjects = Project::where('status', 'published')
+                            ->where('is_featured', false) // Ambil yang TIDAK featured
+                            ->with('user', 'media', 'tags')
+                            ->latest()
+                            ->take(6)
+                            ->get();
+
+        return view('home', [
+            'featuredProjects' => $featuredProjects,
+            'latestProjects' => $latestProjects
+        ]);
     }
 
     public function gallery(Request $request)

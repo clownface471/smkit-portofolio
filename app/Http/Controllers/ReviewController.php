@@ -13,12 +13,15 @@ use Illuminate\Support\Facades\Mail;
 
 class ReviewController extends Controller
 {
-    public function index(): View
+    public function index()
     {
-        $projects = Project::where('status', 'pending_review')->with('user')->latest()->get();
-        return view('review.index', ['projects' => $projects]);
-    }
+        $projects = Project::where('status', 'pending_review')
+                            ->with('user')
+                            ->latest()
+                            ->paginate(10);
 
+        return view('review.index', compact('projects'));
+    }
     /**
      * Menampilkan halaman detail untuk satu proyek yang akan direview.
      */

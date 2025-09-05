@@ -1,128 +1,131 @@
-<x-guest-layout :fullWidth="true">
-    <div class="bg-white dark:bg-gray-800">
-        <div class="mx-auto max-w-7xl px-6 lg:px-8 py-24 sm:py-32">
-            <div class="border-b border-gray-200 dark:border-gray-700 pb-5 mb-12">
-                <h1 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">Galeri Portofolio</h1>
-                <p class="mt-2 text-lg leading-8 text-gray-600 dark:text-gray-400">Jelajahi semua karya inovatif yang telah dipublikasikan oleh para siswa.</p>
+<x-app-layout>
+    <div x-data="{ filtersOpen: false }" class="bg-gray-100 dark:bg-gray-900 min-h-screen">
+        
+        <!-- Page Header -->
+        <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 text-center">
+                <h1 class="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-5xl md:text-6xl">
+                    Galeri Karya Siswa
+                </h1>
+                <p class="mt-4 max-w-2xl mx-auto text-xl text-gray-500 dark:text-gray-400">
+                    Jelajahi inovasi dan kreativitas tanpa batas dari para siswa berprestasi kami.
+                </p>
             </div>
+        </div>
 
-            {{-- FORM FILTER --}}
-            <form action="{{ route('portofolio.gallery') }}" method="GET" class="mb-12" x-data="{
-                showAdvanced: false, // <-- State baru untuk toggle
-                tagStates: {
-                    @foreach($tags as $tag)
-                        '{{ $tag->id }}': {{ in_array($tag->id, request('include_tags', [])) ? 1 : (in_array($tag->id, request('exclude_tags', [])) ? 2 : 0) }},
-                    @endforeach
-                },
-                cycleTagState(tagId) {
-                    this.tagStates[tagId] = (this.tagStates[tagId] + 1) % 3;
-                },
-                // Cek apakah ada filter tag yang aktif untuk membuka toggle secara default
-                init() {
-                    const activeTags = Object.values(this.tagStates).some(state => state > 0);
-                    if (activeTags) {
-                        this.showAdvanced = true;
-                    }
-                }
-            }">
-                {{-- Baris 1: Kontrol Utama --}}
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div class="lg:col-span-2">
-                        <input type="text" name="search" placeholder="Cari berdasarkan judul atau nama siswa..."
-                               value="{{ request('search') }}"
-                               class="w-full h-full rounded-md dark:bg-gray-900 dark:border-gray-700 focus:ring-assyifa-500 focus:border-assyifa-500 dark:text-gray-300">
-                    </div>
-                    
-                    <div>
-                        <select name="jurusan"
-                                class="w-full h-full rounded-md dark:bg-gray-900 dark:border-gray-700 focus:ring-assyifa-500 focus:border-assyifa-500 dark:text-gray-300">
-                            <option value="">Semua Jurusan</option>
-                            <option value="RPL" @selected(request('jurusan') == 'RPL')>Rekayasa Perangkat Lunak</option>
-                            <option value="DKV" @selected(request('jurusan') == 'DKV')>Desain Komunikasi Visual</option>
-                        </select>
-                    </div>
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-8">
+            <div class="lg:flex lg:space-x-8 lg:items-start">
 
-                    <div class="flex items-center space-x-2">
-                         <button type="submit" class="w-full h-full inline-flex items-center justify-center px-4 py-2 bg-assyifa-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-assyifa-500 focus:outline-none focus:ring-2 focus:ring-assyifa-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                            Cari
-                        </button>
-                        <a href="{{ route('portofolio.gallery') }}" class="w-full h-full inline-flex items-center justify-center px-4 py-2 bg-gray-200 dark:bg-gray-700 border border-transparent rounded-md font-semibold text-xs text-gray-800 dark:text-white uppercase tracking-widest hover:bg-gray-300 dark:hover:bg-gray-600 transition ease-in-out duration-150">
-                            Reset
-                        </a>
-                    </div>
-                </div>
-
-                {{-- Tombol untuk menampilkan/menyembunyikan filter lanjutan --}}
-                <div class="mt-4">
-                    <button type="button" @click="showAdvanced = !showAdvanced" class="text-sm font-semibold text-assyifa-600 dark:text-assyifa-500 hover:underline">
-                        <span x-show="!showAdvanced">Tampilkan Filter Lanjutan &darr;</span>
-                        <span x-show="showAdvanced">Sembunyikan Filter Lanjutan &uarr;</span>
+                <!-- Mobile Filter Button -->
+                <div class="lg:hidden p-4">
+                    <button @click="filtersOpen = true" class="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z" clip-rule="evenodd" /></svg>
+                        Tampilkan Filter
                     </button>
                 </div>
 
-                {{-- Filter Tag Lanjutan (Toggleable) --}}
-                <div x-show="showAdvanced" x-transition class="mt-4 p-4 border rounded-lg dark:border-gray-700 space-y-4">
-                    <div>
-                        <p class="font-semibold text-gray-700 dark:text-gray-300">Filter berdasarkan Tag:</p>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">(Klik untuk include, klik lagi untuk exclude, klik ketiga untuk netral)</p>
-                    </div>
-                    @foreach($categories as $category)
-                        <div>
-                            <h4 class="font-semibold text-gray-700 dark:text-gray-300 text-sm border-b border-gray-200 dark:border-gray-700 pb-1 mb-2">{{ $category->name }}</h4>
-                            <div class="flex flex-wrap gap-2">
-                                @foreach($category->tags as $tag)
-                                    <span @click="cycleTagState({{ $tag->id }})" class="cursor-pointer rounded-full px-3 py-1 text-xs font-medium transition-colors"
-                                          :class="{
-                                            'bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-200': tagStates[{{ $tag->id }}] == 0,
-                                            'bg-assyifa-500 text-white hover:bg-assyifa-600': tagStates[{{ $tag->id }}] == 1,
-                                            'bg-red-500 text-white hover:bg-red-600': tagStates[{{ $tag->id }}] == 2,
-                                          }">
-                                        {{ $tag->name }}
-                                    </span>
-                                @endforeach
+                <!-- Background Overlay for Mobile -->
+                <div x-show="filtersOpen" x-transition:opacity class="fixed inset-0 bg-black/50 z-30 lg:hidden" @click="filtersOpen = false"></div>
+
+                <!-- Filter Sidebar -->
+                <aside 
+                    class="fixed inset-y-0 left-0 z-40 w-80 max-w-[85vw] transform -translate-x-full transition-transform duration-300 lg:sticky lg:top-8 lg:w-1/4 lg:translate-x-0 lg:inset-auto"
+                    :class="{ 'translate-x-0': filtersOpen }"
+                >
+                    <div class="h-full max-h-[90vh] lg:max-h-[calc(100vh-4rem)] bg-white dark:bg-gray-800 rounded-r-lg shadow-lg lg:shadow-md lg:rounded-lg p-6 overflow-y-auto"
+                         x-data="tagFilterHandler({{ json_encode(request('include_tags', [])) }}, {{ json_encode(request('exclude_tags', [])) }})"
+                    >
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-white">Filter Karya</h3>
+                            <button @click="filtersOpen = false" class="lg:hidden text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
+                        </div>
+                        
+                        <form action="{{ route('portofolio.gallery') }}" method="GET">
+                            <!-- Search -->
+                            <div class="mb-4">
+                                <label for="search" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Pencarian</label>
+                                <input type="text" name="search" id="search" value="{{ request('search') }}" placeholder="Judul atau nama siswa..." class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
                             </div>
-                        </div>
-                    @endforeach
-                </div>
-                
-                {{-- Hidden inputs --}}
-                <div class="hidden">
-                    @foreach($tags as $tag)
-                        <input type="checkbox" name="include_tags[]" value="{{ $tag->id }}" :checked="tagStates[{{ $tag->id }}] == 1">
-                        <input type="checkbox" name="exclude_tags[]" value="{{ $tag->id }}" :checked="tagStates[{{ $tag->id }}] == 2">
-                    @endforeach
-                </div>
-            </form>
 
-            <div class="grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
-                 @forelse ($projects as $project)
-                    <article class="relative isolate flex flex-col justify-end overflow-hidden rounded-2xl bg-gray-900 px-8 pb-8 pt-80 sm:pt-48 lg:pt-80 group">
-                        <img src="{{ $project->media->firstWhere('file_type', 'image') ? asset('storage/' . $project->media->firstWhere('file_type', 'image')->file_path) : 'https://placehold.co/600x400/004D40/FFFFFF?text=Project' }}" alt="Gambar Proyek" class="absolute inset-0 -z-10 h-full w-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-105">
-                        <div class="absolute inset-0 -z-10 bg-gradient-to-t from-gray-900/80 via-gray-900/40"></div>
-                        <div class="absolute inset-0 -z-10 rounded-2xl ring-1 ring-inset ring-gray-900/10"></div>
-                        <h3 class="mt-3 text-lg font-semibold leading-6 text-white"><a href="{{ route('portofolio.show', $project) }}"><span class="absolute inset-0"></span>{{ $project->title }}</a></h3>
-                        <div class="flex flex-wrap items-center gap-y-1 overflow-hidden text-sm leading-6 text-gray-300">
-                            <a href="{{ route('siswa.show', $project->user) }}" class="mr-2 relative z-10 hover:underline">{{ $project->user->name }}</a>
-                            <div class="flex items-center gap-x-2"><span class="font-medium bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-md px-1.5 py-0.5">{{ $project->user->jurusan }}</span></div>
-                        </div>
-                        <div class="mt-4 flex flex-wrap gap-2 relative z-10">
-                            @foreach($project->tags->take(3) as $tag)
-                                <span class="inline-block rounded-full bg-gray-50/20 backdrop-blur-sm px-2 py-1 text-xs font-medium text-white">{{ $tag->name }}</span>
+                            <!-- Jurusan -->
+                            <div class="mb-4">
+                                <label for="jurusan" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Jurusan</label>
+                                <select name="jurusan" id="jurusan" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                    <option value="">Semua Jurusan</option>
+                                    <option value="RPL" @selected(request('jurusan') == 'RPL')>RPL</option>
+                                    <option value="TKJ" @selected(request('jurusan') == 'TKJ')>TKJ</option>
+                                    <option value="DKV" @selected(request('jurusan') == 'DKV')>DKV</option>
+                                </select>
+                            </div>
+
+                            <!-- Advanced Tags Section -->
+                            @foreach ($categories as $category)
+                                <div class="mb-2 border-t border-gray-200 dark:border-gray-700 pt-2" x-data="{ open: false }">
+                                    <button type="button" @click="open = !open" class="flex justify-between items-center w-full font-semibold text-left text-gray-800 dark:text-gray-200 py-2">
+                                        <span>{{ $category->name }}</span>
+                                        <svg class="w-4 h-4 transition-transform" :class="{'rotate-180': open}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    </button>
+                                    <div x-show="open" x-collapse.duration.300ms class="mt-2 pl-2 space-y-2">
+                                        @foreach ($category->tags as $tag)
+                                            <div class="flex items-center">
+                                                <button type="button" @click="cycleTag({{ $tag->id }})" 
+                                                        class="w-full text-left text-sm px-3 py-1 rounded-md transition-colors"
+                                                        :class="{
+                                                            'bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300': tags[{{ $tag->id }}] === 1,
+                                                            'bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-300 line-through': tags[{{ $tag->id }}] === 2,
+                                                            'bg-gray-100 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600/50': tags[{{ $tag->id }}] === 0 || tags[{{ $tag->id }}] === undefined
+                                                        }">
+                                                    {{ $tag->name }}
+                                                </button>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
                             @endforeach
-                        </div>
-                    </article>
-                @empty
-                    <div class="col-span-full text-center py-12">
-                        <p class="text-gray-500 dark:text-gray-400 text-lg">Tidak ada proyek yang cocok dengan pencarian Anda.</p>
-                        <p class="text-gray-400 dark:text-gray-500 mt-2">Coba ganti kata kunci atau reset filter.</p>
-                        <a href="{{ route('portofolio.gallery') }}" class="mt-4 inline-block text-sm text-assyifa-600 dark:text-assyifa-500 hover:underline">Reset Pencarian & Filter</a>
-                    </div>
-                @endforelse
-            </div>
+                            
+                            <!-- Hidden inputs for submission -->
+                            <template x-for="tagId in Object.keys(tags).filter(id => tags[id] === 1)"><input type="hidden" name="include_tags[]" :value="tagId"></template>
+                            <template x-for="tagId in Object.keys(tags).filter(id => tags[id] === 2)"><input type="hidden" name="exclude_tags[]" :value="tagId"></template>
 
-            <div class="mt-16">
-                {{ $projects->links() }}
+                            <div class="mt-6 border-t pt-6 border-gray-200 dark:border-gray-700">
+                                <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Terapkan Filter</button>
+                                <a href="{{ route('portofolio.gallery') }}" class="mt-2 block text-center text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">Reset Filter</a>
+                            </div>
+                        </form>
+                    </div>
+                </aside>
+
+                <!-- Gallery Grid -->
+                <main class="w-full lg:w-3/4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+                        @forelse ($projects as $project) <x-project-card :project="$project" /> @empty
+                            <div class="col-span-full text-center py-24 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+                                <p class="text-gray-500 dark:text-gray-400 text-lg">Tidak ada proyek yang cocok dengan kriteria pencarian Anda.</p>
+                            </div>
+                        @endforelse
+                    </div>
+                    <div class="mt-8">{{ $projects->links() }}</div>
+                </main>
             </div>
         </div>
+
+        <script>
+            function tagFilterHandler(initialIncludes, initialExcludes) {
+                return {
+                    tags: {},
+                    init() {
+                        initialIncludes.forEach(id => this.tags[id] = 1);
+                        initialExcludes.forEach(id => this.tags[id] = 2);
+                    },
+                    cycleTag(tagId) {
+                        if (this.tags[tagId] === undefined || this.tags[tagId] === null) {
+                            this.tags[tagId] = 0;
+                        }
+                        this.tags[tagId] = (this.tags[tagId] + 1) % 3; // 0 -> 1 -> 2 -> 0
+                    }
+                }
+            }
+        </script>
     </div>
-</x-guest-layout>
+</x-app-layout>
+

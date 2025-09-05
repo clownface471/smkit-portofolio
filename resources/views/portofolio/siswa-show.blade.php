@@ -1,44 +1,51 @@
-<x-guest-layout :fullWidth="true">
-    <div class="bg-white dark:bg-gray-800">
-        <div class="mx-auto max-w-7xl px-6 lg:px-8 py-24 sm:py-32">
-            <div class="border-b border-gray-200 dark:border-gray-700 pb-5 mb-12">
-                <div class="mb-8">
-                    <a href="{{ route('portofolio.gallery') }}" class="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
-                        &larr; Kembali ke Galeri Utama
-                    </a>
-                </div>
-                {{-- Informasi Siswa --}}
-                <h1 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
-                    Portofolio Milik: {{ $user->name }}
-                </h1>
-                <p class="mt-2 text-lg leading-8 text-gray-600 dark:text-gray-400">
-                    Siswa Jurusan <span class="font-semibold text-green-600 dark:text-green-500">{{ $user->jurusan }}</span>
-                </p>
-            </div>
+<x-app-layout>
+    <div class="py-12 bg-white dark:bg-gray-900">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
-            <div class="grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
-                @forelse ($user->projects as $project)
-                    {{-- Kartu Proyek (Sama seperti di halaman galeri) --}}
-                    <article class="relative isolate flex flex-col justify-end overflow-hidden rounded-2xl bg-gray-900 px-8 pb-8 pt-80 sm:pt-48 lg:pt-80 group">
-                        <img src="{{ $project->media->firstWhere('file_type', 'image') ? asset('storage/' . $project->media->firstWhere('file_type', 'image')->file_path) : 'https://placehold.co/600x400/004D40/FFFFFF?text=Project' }}" alt="Gambar Proyek" class="absolute inset-0 -z-10 h-full w-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-105">
-                        <div class="absolute inset-0 -z-10 bg-gradient-to-t from-gray-900/80 via-gray-900/40"></div>
-                        <div class="absolute inset-0 -z-10 rounded-2xl ring-1 ring-inset ring-gray-900/10"></div>
-
-                        <h3 class="mt-3 text-lg font-semibold leading-6 text-white">
-                            <a href="{{ route('portofolio.show', $project) }}">
-                                <span class="absolute inset-0"></span>
-                                {{ $project->title }}
-                            </a>
-                        </h3>
-                    </article>
-                @empty
-                    <div class="col-span-full text-center py-12">
-                        <p class="text-gray-500 dark:text-gray-400 text-lg">
-                            {{ $user->name }} belum mempublikasikan proyek apapun.
-                        </p>
+            {{-- BAGIAN PROFIL HEADER --}}
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg mb-8">
+                <div class="p-6 md:p-8 text-gray-900 dark:text-gray-100 flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
+                    {{-- Avatar --}}
+                    <div>
+                        @if ($user->avatar)
+                            <img src="{{ asset('storage/' . $user->avatar) }}" alt="Avatar {{ $user->name }}" class="w-24 h-24 rounded-full object-cover ring-4 ring-indigo-300 dark:ring-indigo-600">
+                        @else
+                            <div class="w-24 h-24 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-500 text-3xl font-bold ring-4 ring-gray-300 dark:ring-gray-600">
+                                {{ strtoupper(substr($user->name, 0, 2)) }}
+                            </div>
+                        @endif
                     </div>
-                @endforelse
+
+                    {{-- Nama, Jurusan, dan Bio --}}
+                    <div class="text-center sm:text-left">
+                        <h2 class="text-3xl font-bold text-gray-800 dark:text-white">{{ $user->name }}</h2>
+                        <p class="text-lg text-indigo-500 dark:text-indigo-400 font-semibold">{{ $user->jurusan }}</p>
+
+                        @if ($user->bio)
+                            <p class="mt-2 text-gray-600 dark:text-gray-400 max-w-2xl">
+                                {{ $user->bio }}
+                            </p>
+                        @endif
+                    </div>
+                </div>
             </div>
+
+            {{-- BAGIAN DAFTAR KARYA --}}
+            <div>
+                <h3 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-6">Karya Portofolio:</h3>
+                @if($user->projects->isNotEmpty())
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        @foreach ($user->projects as $project)
+                            <x-project-card :project="$project" />
+                        @endforeach
+                    </div>
+                @else
+                    <div class="text-center py-16">
+                        <p class="text-gray-500 dark:text-gray-400">Siswa ini belum memiliki karya yang dipublikasikan.</p>
+                    </div>
+                @endif
+            </div>
+
         </div>
     </div>
-</x-guest-layout>
+</x-app-layout>

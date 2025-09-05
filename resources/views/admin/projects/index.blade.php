@@ -40,16 +40,30 @@
                                                 <span class="bg-yellow-100 text-yellow-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300">Draft</span>
                                             @endif
                                         </td>
-                                        <td class="px-6 py-4 flex items-center space-x-4">
-                                            <a href="{{ route('projects.preview', $project) }}" target="_blank" class="font-medium text-purple-600 dark:text-purple-500 hover:underline">Preview</a>
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-center space-x-4">
+                                                <a href="{{ route('projects.preview', $project) }}" target="_blank" class="font-medium text-purple-600 dark:text-purple-500 hover:underline">Preview</a>
 
-                                            @if ($project->status == 'published')
-                                                <form method="POST" action="{{ route('admin.projects.retract', $project) }}" onsubmit="return confirm('Apakah Anda yakin ingin menarik proyek ini dari halaman publik?');">
-                                                    @csrf
-                                                    @method('PATCH')
-                                                    <button type="submit" class="font-medium text-red-600 dark:text-red-500 hover:underline">Tarik Publikasi</button>
-                                                </form>
-                                            @endif
+                                                @if ($project->status == 'published')
+                                                    {{-- Tombol Tarik Publikasi --}}
+                                                    <form method="POST" action="{{ route('admin.projects.retract', $project) }}" onsubmit="return confirm('Apakah Anda yakin ingin menarik proyek ini dari halaman publik?');">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <button type="submit" class="font-medium text-red-600 dark:text-red-500 hover:underline">Tarik</button>
+                                                    </form>
+
+                                                    {{-- Tombol Jadikan Unggulan --}}
+                                                    <form action="{{ route('admin.projects.toggle-feature', $project) }}" method="POST">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        @if ($project->is_featured)
+                                                            <button type="submit" class="font-medium text-yellow-600 dark:text-yellow-500 hover:underline">Batalkan</button>
+                                                        @else
+                                                            <button type="submit" class="font-medium text-green-600 dark:text-green-500 hover:underline">Unggulkan</button>
+                                                        @endif
+                                                    </form>
+                                                @endif
+                                            </div>
                                         </td>
                                     </tr>
                                 @empty

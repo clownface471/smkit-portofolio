@@ -50,7 +50,8 @@ Route::middleware(['auth', 'role:guru,admin'])->group(function () {
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
     Route::get('projects', [\App\Http\Controllers\Admin\ProjectController::class, 'index'])->name('projects.index');
-Route::patch('projects/{project}/retract', [\App\Http\Controllers\Admin\ProjectController::class, 'retract'])->name('projects.retract');
+    Route::patch('projects/{project}/retract', [\App\Http\Controllers\Admin\ProjectController::class, 'retract'])->name('projects.retract');
+    Route::patch('projects/{project}/toggle-feature', [\App\Http\Controllers\Admin\ProjectController::class, 'toggleFeature'])->name('projects.toggle-feature'); 
 });
 
 require __DIR__.'/auth.php';

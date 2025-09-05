@@ -7,6 +7,11 @@
 
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                    @if (session('status') === 'profile-updated')
+                        <div class="mb-4 bg-green-100 dark:bg-green-900/50 border-l-4 border-green-500 text-green-700 dark:text-green-300 p-4" role="alert">
+                            <p>Profil Anda berhasil diperbarui.</p>
+                        </div>
+                    @endif
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6 text-gray-900 dark:text-gray-100">
                         Selamat datang kembali, {{ Auth::user()->name }}! Anda login sebagai {{ ucfirst(Auth::user()->role) }}.

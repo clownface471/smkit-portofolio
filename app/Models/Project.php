@@ -27,6 +27,12 @@ class Project extends Model
         'embed_url',
         'source_url',
         'rejection_reason',
+        'is_featured',
+    ];
+
+    protected $casts = [
+        'is_featured' => 'boolean',
+        'published_at' => 'datetime',
     ];
 
     public function user(): BelongsTo
