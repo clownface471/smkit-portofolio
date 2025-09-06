@@ -2,198 +2,198 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Project;
-use App\Models\ProjectMedia;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\Rule;
 use Illuminate\View\View;
-use App\Models\Category;
-use App\Models\Tag;
 
 class ProjectController extends Controller
 {
-    public function index(Request $request): View
+    /**
+     * Display a listing of the user's projects.
+     */
+    public function index(): View
     {
-        $projects = $request->user()->projects()->with('media')->latest()->get();
-        return view('projects.index', ['projects' => $projects]);
+        $projects = Project::where('user_id', Auth::id())->latest()->paginate(10);
+        return view('projects.index', compact('projects'));
     }
 
+    /**
+     * Show the form for creating a new project.
+     */
     public function create(): View
     {
-        $categories = Category::with('tags')->get();
+        $jurusan = Auth::user()->jurusan;
+
+        $categories = Category::with(['tags' => function ($query) use ($jurusan) {
+            $query->whereNull('allowed_jurusan') // Ambil tag yang untuk semua jurusan
+                  ->orWhereJsonContains('allowed_jurusan', $jurusan); // Atau yang spesifik untuk jurusan user
+        }])->whereHas('tags', function ($query) use ($jurusan) { // Pastikan kategori punya tag yang relevan
+            $query->whereNull('allowed_jurusan')
+                  ->orWhereJsonContains('allowed_jurusan', $jurusan);
+        })->get();
+
         return view('projects.create', compact('categories'));
     }
 
+    /**
+     * Store a newly created project in storage.
+     */
     public function store(Request $request): RedirectResponse
     {
-        $user = Auth::user();
-        $isRpl = $user->jurusan === 'RPL';
-
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'github_url' => [$isRpl ? 'required' : 'nullable', 'url'],
-            'demo_url' => 'nullable|url',
-            'embed_url' => 'nullable|url',
-            'source_url' => 'nullable|url',
-            'images' => 'nullable|array',
-            'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'video_type' => 'nullable|string|in:none,upload,embed',
-            'video_upload' => [Rule::requiredIf($request->video_type === 'upload'), 'nullable', 'file', 'mimes:mp4,mov,avi,webm', 'max:20480'],
-            'video_embed_url' => [Rule::requiredIf($request->video_type === 'embed'),'nullable','url'],
             'tags' => 'nullable|array',
             'tags.*' => 'exists:tags,id',
+            'media_images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'media_videos.*' => 'mimetypes:video/avi,video/mpeg,video/quicktime,video/mp4|max:10240',
+            'video_links.*' => 'nullable|url',
+            'github_link' => 'nullable|url',
+            'demo_link' => 'nullable|url',
+            'figma_link' => 'nullable|url',
         ]);
 
-        $projectData = [
-            'title' => $validated['title'],
-            'description' => $validated['description'],
-            'github_url' => $validated['github_url'] ?? null,
-            'demo_url' => $validated['demo_url'] ?? null,
-            'embed_url' => $validated['embed_url'] ?? null,
-            'source_url' => $validated['source_url'] ?? null,
-        ];
-
-        $project = $request->user()->projects()->create($projectData);
+        $project = auth()->user()->projects()->create($validated);
 
         if ($request->has('tags')) {
             $project->tags()->sync($request->tags);
         }
 
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
-                $path = $image->store('project-images', 'public');
-                $project->media()->create(['file_path' => $path, 'file_name' => $image->getClientOriginalName(), 'file_type' => 'image']);
+        if ($request->hasFile('media_images')) {
+            foreach ($request->file('media_images') as $file) {
+                $path = $file->store('project-media', 'public');
+                $project->media()->create(['file_path' => $path, 'file_type' => 'image']);
+            }
+        }
+        
+        if ($request->hasFile('media_videos')) {
+            foreach ($request->file('media_videos') as $file) {
+                $path = $file->store('project-media', 'public');
+                $project->media()->create(['file_path' => $path, 'file_type' => 'video']);
             }
         }
 
-        if ($request->video_type === 'upload' && $request->hasFile('video_upload')) {
-            $video = $request->file('video_upload');
-            $path = $video->store('project-videos', 'public');
-            $project->media()->create(['file_path' => $path, 'file_name' => $video->getClientOriginalName(), 'file_type' => 'video_upload']);
-        } elseif ($request->video_type === 'embed' && $request->filled('video_embed_url')) {
-            $project->media()->create(['file_path' => 'embed', 'file_name' => 'embed_link', 'embed_url' => $request->video_embed_url, 'file_type' => 'video_embed']);
+        if ($request->filled('video_links')) {
+            foreach ($request->video_links as $link) {
+                if($link) {
+                    $project->media()->create(['video_url' => $link, 'file_type' => 'embed']);
+                }
+            }
         }
 
-        return redirect(route('projects.index'))->with('success', 'Proyek berhasil ditambahkan!');
+        return redirect()->route('projects.index')->with('success', 'Proyek berhasil dibuat.');
     }
 
+    /**
+     * Show the form for editing the specified project.
+     */
     public function edit(Project $project): View
     {
-        if ($project->user_id !== Auth::id()) {
-            abort(403);
-        }
+        Gate::authorize('update', $project);
 
-        $categories = Category::with('tags')->get();
-        $projectTagIds = $project->tags->pluck('id')->toArray();
+        $jurusan = Auth::user()->jurusan;
 
-        return view('projects.edit', compact('project', 'categories', 'projectTagIds'));
+        $categories = Category::with(['tags' => function ($query) use ($jurusan) {
+            $query->whereNull('allowed_jurusan') // Ambil tag yang untuk semua jurusan
+                  ->orWhereJsonContains('allowed_jurusan', $jurusan); // Atau yang spesifik untuk jurusan user
+        }])->whereHas('tags', function ($query) use ($jurusan) { // Pastikan kategori punya tag yang relevan
+            $query->whereNull('allowed_jurusan')
+                  ->orWhereJsonContains('allowed_jurusan', $jurusan);
+        })->get();
+        
+        $selectedTags = $project->tags->pluck('id')->toArray();
+
+        return view('projects.edit', compact('project', 'categories', 'selectedTags'));
     }
 
+    /**
+     * Update the specified project in storage.
+     */
     public function update(Request $request, Project $project): RedirectResponse
     {
-        if ($project->user_id !== $request->user()->id) {
-            abort(403);
-        }
-
-        $user = Auth::user();
-        $isRpl = $user->jurusan === 'RPL';
+        Gate::authorize('update', $project);
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'github_url' => [$isRpl ? 'required' : 'nullable', 'url'],
-            'demo_url' => 'nullable|url',
-            'embed_url' => 'nullable|url',
-            'source_url' => 'nullable|url',
-            'images' => 'nullable|array',
-            'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'delete_media' => 'nullable|array',
-            'delete_media.*' => 'integer|exists:project_media,id',
-            'video_type' => 'nullable|string|in:none,upload,embed',
-            'video_upload' => [Rule::requiredIf($request->video_type === 'upload'), 'nullable', 'file', 'mimes:mp4,mov,avi,webm', 'max:20480'],
-            'video_embed_url' => [Rule::requiredIf($request->video_type === 'embed'), 'nullable', 'url'],
             'tags' => 'nullable|array',
             'tags.*' => 'exists:tags,id',
+            'media_images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'media_videos.*' => 'mimetypes:video/avi,video/mpeg,video/quicktime,video/mp4|max:10240',
+            'video_links.*' => 'nullable|url',
+            'github_link' => 'nullable|url',
+            'demo_link' => 'nullable|url',
+            'figma_link' => 'nullable|url',
         ]);
 
-        if (!empty($validated['delete_media'])) {
-            $mediaToDelete = ProjectMedia::whereIn('id', $validated['delete_media'])->where('project_id', $project->id)->get();
-            foreach($mediaToDelete as $media) {
-                if ($media->file_type !== 'video_embed' && $media->file_path !== 'embed') {
-                    Storage::disk('public')->delete($media->file_path);
-                }
-                $media->delete();
-            }
-        }
-
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
-                $path = $image->store('project-images', 'public');
-                $project->media()->create(['file_path' => $path, 'file_name' => $image->getClientOriginalName(), 'file_type' => 'image']);
-            }
-        }
-
-        if ($request->video_type === 'upload' || $request->video_type === 'embed') {
-            $oldVideo = $project->media()->where('file_type', 'like', 'video_%')->first();
-            if ($oldVideo) {
-                if ($oldVideo->file_type === 'video_upload') {
-                    Storage::disk('public')->delete($oldVideo->file_path);
-                }
-                $oldVideo->delete();
-            }
-        }
-
-        if ($request->video_type === 'upload' && $request->hasFile('video_upload')) {
-            $video = $request->file('video_upload');
-            $path = $video->store('project-videos', 'public');
-            $project->media()->create(['file_path' => $path, 'file_name' => $video->getClientOriginalName(), 'file_type' => 'video_upload']);
-        } elseif ($request->video_type === 'embed' && $request->filled('video_embed_url')) {
-            $project->media()->create(['file_path' => 'embed', 'file_name' => 'embed_link', 'embed_url' => $request->video_embed_url, 'file_type' => 'video_embed']);
-        }
-
         $project->update($validated);
+
         $project->tags()->sync($request->tags ?? []);
 
-        return redirect(route('projects.index'))->with('success', 'Proyek berhasil diperbarui!');
+        if ($request->hasFile('media_images')) {
+            foreach ($request->file('media_images') as $file) {
+                $path = $file->store('project-media', 'public');
+                $project->media()->create(['file_path' => $path, 'file_type' => 'image']);
+            }
+        }
+
+        if ($request->hasFile('media_videos')) {
+            foreach ($request->file('media_videos') as $file) {
+                $path = $file->store('project-media', 'public');
+                $project->media()->create(['file_path' => $path, 'file_type' => 'video']);
+            }
+        }
+        
+        if ($request->filled('video_links')) {
+            foreach ($request->video_links as $link) {
+                 if($link && !$project->media()->where('video_url', $link)->exists()) {
+                    $project->media()->create(['video_url' => $link, 'file_type' => 'embed']);
+                }
+            }
+        }
+
+        return redirect()->route('projects.index')->with('success', 'Proyek berhasil diperbarui.');
     }
 
-    public function destroy(Request $request, Project $project): RedirectResponse
+    /**
+     * Remove the specified project from storage.
+     */
+    public function destroy(Project $project): RedirectResponse
     {
-        if ($project->user_id !== $request->user()->id) {
-            abort(403);
-        }
+        Gate::authorize('delete', $project);
+        
+        // Hapus media terkait dari storage
         foreach ($project->media as $media) {
-            if ($media->file_type !== 'video_embed' && $media->file_path !== 'embed') {
+            if ($media->file_path) {
                 Storage::disk('public')->delete($media->file_path);
             }
         }
+
         $project->delete();
-        return redirect(route('projects.index'))->with('success', 'Proyek berhasil dihapus!');
+        return redirect()->route('projects.index')->with('success', 'Proyek berhasil dihapus.');
     }
 
-    public function preview(Request $request, Project $project): View
+    /**
+     * Submit project for review.
+     */
+    public function submitForReview(Project $project): RedirectResponse
     {
-        $user = $request->user();
-        if ($user->role === 'siswa' && $project->user_id !== $user->id) {
-            abort(403);
-        }
-
-        $project->load('user', 'media', 'tags');
-
-        return view('projects.preview', ['project' => $project]);
+        Gate::authorize('update', $project);
+        $project->update(['status' => 'pending_review']);
+        return back()->with('success', 'Proyek telah diajukan untuk direview.');
     }
 
-    public function submitForReview(Request $request, Project $project): RedirectResponse
+    /**
+     * Preview a project.
+     */
+    public function preview(Project $project): View
     {
-        if ($project->user_id !== $request->user()->id) {
-            abort(403);
-        }
-        $project->status = 'pending_review';
-        $project->save();
-        return redirect(route('projects.index'))->with('success', 'Proyek berhasil diajukan untuk direview!');
+        Gate::authorize('update', $project);
+        return view('portofolio.show', compact('project'));
     }
 }

@@ -7,6 +7,13 @@ use App\Http\Controllers\PublicController;
 use App\Http\Controllers\ReviewController;
 use Illuminate\Support\Facades\Route;
 
+// Admin Controllers
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\ProjectController as AdminProjectController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\TagController;
+use App\Http\Controllers\Admin\SettingController;
+
 /*
 |--------------------------------------------------------------------------
 | Rute Publik (Bisa diakses tanpa login)
@@ -48,10 +55,18 @@ Route::middleware(['auth', 'role:guru,admin'])->group(function () {
 
 // Rute KHUSUS untuk Admin
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
-    Route::get('projects', [\App\Http\Controllers\Admin\ProjectController::class, 'index'])->name('projects.index');
-    Route::patch('projects/{project}/retract', [\App\Http\Controllers\Admin\ProjectController::class, 'retract'])->name('projects.retract');
-    Route::patch('projects/{project}/toggle-feature', [\App\Http\Controllers\Admin\ProjectController::class, 'toggleFeature'])->name('projects.toggle-feature'); 
+    Route::resource('users', UserController::class);
+    Route::get('projects', [AdminProjectController::class, 'index'])->name('projects.index');
+    Route::patch('projects/{project}/retract', [AdminProjectController::class, 'retract'])->name('projects.retract');
+    Route::patch('projects/{project}/toggle-feature', [AdminProjectController::class, 'toggleFeature'])->name('projects.toggle-feature');
+
+    // Taksonomi
+    Route::resource('categories', CategoryController::class);
+    Route::resource('tags', TagController::class);
+
+    // Pengaturan Situs
+    Route::get('settings', [SettingController::class, 'index'])->name('settings.index');
+    Route::patch('settings', [SettingController::class, 'update'])->name('settings.update');
 });
 
 require __DIR__.'/auth.php';

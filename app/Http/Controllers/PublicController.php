@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Project;
 use App\Models\User;
 use App\Models\Category;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use App\Models\Tag;
@@ -13,6 +14,9 @@ class PublicController extends Controller
 {
     public function home()
     {
+        // Ambil pengaturan dari DB
+        $settings = Setting::pluck('value', 'key');
+
         $featuredProjects = Project::where('status', 'published')
                                 ->where('is_featured', true)
                                 ->with('user', 'media', 'tags')
@@ -20,15 +24,16 @@ class PublicController extends Controller
                                 ->get();
 
         $latestProjects = Project::where('status', 'published')
-                            ->where('is_featured', false) // Ambil yang TIDAK featured
-                            ->with('user', 'media', 'tags')
-                            ->latest()
-                            ->take(6)
-                            ->get();
+                               ->where('is_featured', false) // Ambil yang TIDAK featured
+                               ->with('user', 'media', 'tags')
+                               ->latest()
+                               ->take(6)
+                               ->get();
 
         return view('home', [
             'featuredProjects' => $featuredProjects,
-            'latestProjects' => $latestProjects
+            'latestProjects' => $latestProjects,
+            'settings' => $settings // Kirim settings ke view
         ]);
     }
 

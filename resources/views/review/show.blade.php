@@ -7,15 +7,20 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-
+            
             {{-- KOTAK AKSI PENINJAUAN --}}
             <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
                 <div class="max-w-xl">
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Aksi Peninjauan</h3>
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Aksi Peninjauan</h3>
+                        <a href="{{ route('review.index') }}" class="text-sm text-gray-600 dark:text-gray-400 hover:underline">
+                            ← Kembali ke Daftar Review
+                        </a>
+                    </div>
                     <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
                         Tinjau detail proyek di bawah ini. Anda dapat melihat pratinjau publik terlebih dahulu sebelum mengambil keputusan.
                     </p>
-
+                    
                     {{-- Kumpulan Tombol Aksi yang Sudah Diperbaiki --}}
                     <div class="mt-6 flex items-center gap-4">
                         <a href="{{ route('projects.preview', $project) }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-gray-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-600 active:bg-gray-700 focus:outline-none transition ease-in-out duration-150">
@@ -28,7 +33,7 @@
                                 x-data=""
                                 x-on:click.prevent="$dispatch('open-modal', 'approve-project-modal')"
                             >{{ __('Setujui') }}</x-primary-button>
-
+                            
                             <x-danger-button
                                 x-data=""
                                 x-on:click.prevent="$dispatch('open-modal', 'reject-project-modal')"
@@ -46,10 +51,10 @@
                             <form action="{{ route('admin.projects.toggle-feature', $project) }}" method="POST">
                                 @csrf
                                 @method('PATCH')
-
+                                
                                 @if($project->is_featured)
                                     <x-secondary-button type="submit" class="inline-flex items-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.196-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.783-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>
+                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.196-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.783-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>
                                         Batalkan Unggulan
                                     </x-secondary-button>
                                 @else
@@ -62,7 +67,6 @@
                             @endif
                         @endif
                     </div>
-
                 </div>
             </div>
 
@@ -153,3 +157,4 @@
         </form>
     </x-modal>
 </x-app-layout>
+
