@@ -4,8 +4,6 @@ Sistem Manajemen Portofolio Siswa adalah aplikasi web yang dibangun untuk memung
 
 ## Tampilan Aplikasi (Screenshot)
 
-*Sisipkan gambar-gambar terbaik dari aplikasimu di sini. Kita akan lakukan ini setelah kamu selesai dengan teksnya.*
-
 _Halaman Login_
 ![Halaman Login](image.png)
 
